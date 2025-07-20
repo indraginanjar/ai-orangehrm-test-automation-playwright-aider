@@ -82,30 +82,25 @@ async function loginAndNavigateToDirectory(page) {
   await page.locator('input[name="password"]').fill(CREDENTIALS.password);
   await page.locator('button[type="submit"]').click();
 
-  // Wait for dashboard to fully load
+  // Wait for dashboard
   await page.waitForURL(/dashboard/);
   await page.waitForLoadState('networkidle');
   
-  // Navigate to Directory with retry mechanism
+  // Navigate to Directory with retry
   let retries = 3;
   while (retries > 0) {
     try {
       await page.locator('span:has-text("Directory")').first().click();
-      await page.waitForURL(/directory\/viewDirectory/, { timeout: 60000 });
+      await page.waitForURL(/directory\/viewDirectory/);
       
-      // Wait for table with multiple fallback selectors
-      await Promise.race([
-        page.waitForSelector('.oxd-table', { state: 'visible', timeout: 30000 }),
-        page.waitForSelector('.orangehrm-container', { state: 'visible', timeout: 30000 }),
-        page.waitForSelector('.oxd-table-card', { state: 'visible', timeout: 30000 })
-      ]);
-      
+      // Wait for directory page to fully load
+      await page.waitForSelector('.orangehrm-container', { state: 'visible', timeout: 30000 });
       await page.waitForLoadState('networkidle');
-      return; // Success - exit the retry loop
+      return;
     } catch (error) {
       retries--;
       if (retries === 0) throw error;
-      await page.waitForTimeout(5000); // Wait before retry
+      await page.waitForTimeout(5000);
       console.log(`Retrying Directory navigation (${retries} attempts left)...`);
     }
   }
@@ -524,7 +519,6 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
 
     await loginAndNavigateToDirectory(page);
 
-    // Test Case 1: Verify page elements
     await test.step('Verify Directory page elements', async () => {
       // Verify main heading
       await expect(page.locator('.oxd-topbar-header-breadcrumb-module').getByText('Directory')).toBeVisible();
@@ -532,30 +526,13 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       // Verify search fields
       await expect(page.locator('.oxd-input')).toBeVisible();
       
-      // Verify table exists with multiple selector options
-      const tableSelectors = [
-        '.oxd-table',
-        '.orangehrm-container',
-        '.oxd-table-card'
-      ];
+      // Verify table exists - use more reliable selector
+      const table = page.locator('.orangehrm-container');
+      await expect(table).toBeVisible();
       
-      let table;
-      for (const selector of tableSelectors) {
-        try {
-          table = page.locator(selector).first();
-          await expect(table).toBeVisible({ timeout: 10000 });
-          break;
-        } catch (error) {
-          console.log(`Table not found with selector ${selector}, trying next option`);
-        }
-      }
-      
-      if (!table) {
-        throw new Error('Could not find Directory table with any selector');
-      }
-      
-      // Verify at least one row exists
-      await expect(table.locator('.oxd-table-card, .oxd-table-row')).first().toBeVisible();
+      // Verify at least one row exists - updated selector
+      const firstRow = table.locator('.oxd-table-card').first();
+      await expect(firstRow).toBeVisible({ timeout: 10000 });
     });
   });
 
@@ -568,42 +545,22 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
 
     await loginAndNavigateToDirectory(page);
 
-    // Test Case 1: Search by name
     await test.step('Verify search by employee name', async () => {
       // Clear existing filters
       await page.locator('.oxd-input').first().fill('');
       await page.locator('button:has-text("Reset")').click();
-      await page.waitForTimeout(2000); // Wait for reset to complete
+      await page.waitForTimeout(2000);
       
       // Search with more reliable term
       await page.locator('.oxd-input').first().fill('Admin');
       await page.locator('button:has-text("Search")').click();
       
-      // Wait for results with multiple selector options
-      const resultSelectors = [
-        '.oxd-table-card',
-        '.oxd-table-row',
-        '.orangehrm-container'
-      ];
+      // Wait for results with more reliable selector
+      await page.waitForSelector('.orangehrm-container', { state: 'visible', timeout: 30000 });
       
-      let resultsFound = false;
-      for (const selector of resultSelectors) {
-        try {
-          await page.waitForSelector(selector, { state: 'visible', timeout: 30000 });
-          resultsFound = true;
-          break;
-        } catch (error) {
-          console.log(`No results found with selector ${selector}, trying next option`);
-        }
-      }
-      
-      if (!resultsFound) {
-        throw new Error('No search results found with any selector');
-      }
-      
-      // Verify at least one result
-      const nameCells = page.locator('.oxd-table-cell').first();
-      await expect(nameCells).toBeVisible();
+      // Verify at least one result - updated selector
+      const firstCell = page.locator('.orangehrm-container .oxd-table-cell').first();
+      await expect(firstCell).toBeVisible({ timeout: 10000 });
     });
 
     // Test Case 2: Search by job title
