@@ -17,3 +17,7 @@ export const TEST_DATA = {
     location: 'Texas R&D'
   }
 };
+
+// Alias for backward compatibility
+export const CREDENTIALS = TEST_DATA.credentials.valid;
+export const INVALID_CREDENTIALS = TEST_DATA.credentials.invalid;
