@@ -255,7 +255,38 @@ npx playwright show-report
 - Follows ISTQB standard numbering
 
 #### Security Requirements (SEC)
-- SEC-001 to SEC-003  
+
+| ID | Description | Test Validation | Test Case |
+|----|-------------|-----------------|-----------|
+| SEC-001 | Post-Logout Session Validation | <ul><li>Invalidates session after logout</li><li>Redirects to login when accessing protected pages</li><li>Clears session tokens/cookies</li></ul> | TC-005 |
+| SEC-002 | Password Case Sensitivity | <ul><li>Rejects uppercase credentials</li><li>Shows "Invalid credentials" message</li></ul> | TC-007 |
+| SEC-003 | Session Timeout | <ul><li>Terminates session after 5 minutes inactivity</li><li>Redirects to login page</li><li>Prevents access to protected resources</li></ul> | TC-009 (Currently disabled) |
+
+**Key Security Characteristics:**
+1. **Authentication Security**:
+   - Proper session invalidation (SEC-001)
+   - Case-sensitive credentials (SEC-002)
+
+2. **Session Management**:
+   - Time-based expiration (SEC-003)
+   - Clean session termination
+
+3. **Mock Testing Available**:
+   - `@mock @security Session timeout simulation` provides faster alternative for SEC-003
+
+**Implementation Notes:**
+- Security tests use both:
+  - Direct security validations (TC-005, TC-007)
+  - Boundary testing (TC-008) for injection prevention
+- Mock tests verify security logic without real waits
+- Disabled SEC-003 test still maintains coverage through mock version
+
+**Traceability Matrix**:
+| Security Concern | Test Case | Verification Method |
+|-----------------|-----------|---------------------|
+| Session Fixation | TC-005 | Post-logout redirect |
+| Credential Strength | TC-007 | Case sensitivity check |
+| Session Lifetime | TC-009/Mock | Timeout simulation |
 
 #### UI Requirements (UI)  
 - UI-001 to UI-002  
