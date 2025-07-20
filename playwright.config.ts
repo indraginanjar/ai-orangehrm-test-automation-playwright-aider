@@ -30,7 +30,12 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
-      ['html', { open: 'never' }],
+    ['html', { 
+      open: 'never',
+      outputFolder: 'playwright-report',
+      attachScreenshots: true,
+      attachTrace: true 
+    }],
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
@@ -42,10 +47,10 @@ export default defineConfig({
     navigationTimeout: 30000, // Navigation timeout
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
-    /* Capture screenshots and videos on failures */
+    trace: 'on',
+    /* Capture screenshots and videos */
     screenshot: {
-      mode: 'only-on-failure',
+      mode: 'on', // Changed from 'only-on-failure' to capture screenshots for all tests
       fullPage: true,
       scale: 'css',
       caret: 'hide',
