@@ -572,10 +572,12 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
         await expect(page.locator('.oxd-text:has-text("No Records Found")')).toBeVisible({ timeout: 10000 });
       }
       const firstRow = page.locator('.oxd-table-card').first();
+      const noDataMessage = page.locator('.oxd-text:has-text("No Records Found")');
       
+      // Wait for either table row or no data message
       await Promise.race([
-        expect(firstRow).toBeVisible({ timeout: 30000 }),
-        expect(noDataMessage).toBeVisible({ timeout: 30000 })
+        firstRow.waitFor({ state: 'visible', timeout: 30000 }),
+        noDataMessage.waitFor({ state: 'visible', timeout: 30000 })
       ]);
     });
   });
@@ -595,28 +597,34 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       await page.locator('button:has-text("Reset")').click();
       await page.waitForTimeout(2000);
       
-      // Search with more reliable term
-      await page.locator('.oxd-input').first().fill('Admin');
+      // Search with more reliable term and wait for results
+      await page.locator('.oxd-input').first().fill('Odis');
       await page.locator('button:has-text("Search")').click();
       
+      // Wait for search to complete
+      await page.waitForLoadState('networkidle');
+      
       // Enhanced search with retry and validation
+      // Perform search with retries
       let searchSuccess = false;
       for (let attempt = 1; attempt <= 3; attempt++) {
         console.log(`Search attempt ${attempt}`);
         await page.locator('button:has-text("Search")').click();
         
         try {
-          // Wait for search to complete
           await page.waitForLoadState('networkidle');
           
-          // Check for either results or no data message
-          const hasResults = await page.locator('.oxd-table-card').first().isVisible({ timeout: 5000 }).catch(() => false);
-          const hasNoData = await page.locator('.oxd-text:has-text("No Records Found")').isVisible({ timeout: 5000 }).catch(() => false);
+          // Check for results or no data message
+          const resultsLocator = page.locator('.oxd-table-card').first();
+          const noDataLocator = page.locator('.oxd-text:has-text("No Records Found")');
           
-          if (hasResults || hasNoData) {
-            searchSuccess = true;
-            break;
-          }
+          await Promise.race([
+            resultsLocator.waitFor({ state: 'visible', timeout: 10000 }),
+            noDataLocator.waitFor({ state: 'visible', timeout: 10000 })
+          ]);
+          
+          searchSuccess = true;
+          break;
         } catch (error) {
           console.log(`Search attempt ${attempt} failed: ${error.message}`);
           if (attempt === 3) {
@@ -625,10 +633,6 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
           }
           await page.waitForTimeout(3000);
         }
-      }
-      
-      if (!searchSuccess) {
-        throw new Error('Search did not return any results or no-data message');
       }
     });
 
