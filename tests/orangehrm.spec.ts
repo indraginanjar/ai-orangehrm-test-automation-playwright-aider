@@ -57,8 +57,10 @@ test.describe('OrangeHRM Functional Tests', () => {
     await page.getByRole('button', { name: 'Login' }).click();
 
     // Logout
-    await page.getByRole('button', { name: 'User Profile' }).click();
-    await page.getByRole('menuitem', { name: 'Logout' }).click();
+    await page.locator('.oxd-userdropdown-tab').waitFor();
+    await page.locator('.oxd-userdropdown-tab').click();
+    await page.locator('a:has-text("Logout")').waitFor();
+    await page.locator('a:has-text("Logout")').click();
 
     // Verify back to login page
     await expect(page).toHaveURL(/auth\/login/);
@@ -70,8 +72,10 @@ test.describe('OrangeHRM Functional Tests', () => {
     await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
     await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
     await page.getByRole('button', { name: 'Login' }).click();
-    await page.getByRole('button', { name: 'User Profile' }).click();
-    await page.getByRole('menuitem', { name: 'Logout' }).click();
+    await page.locator('.oxd-userdropdown-tab').waitFor();
+    await page.locator('.oxd-userdropdown-tab').click();
+    await page.locator('a:has-text("Logout")').waitFor();
+    await page.locator('a:has-text("Logout")').click();
 
     // Try to access dashboard directly
     await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/dashboard/index');
