@@ -22,7 +22,7 @@ test.describe('OrangeHRM Functional Tests', () => {
     await page.getByRole('button', { name: 'Login' }).click();
 
     // Verify dashboard appears after login
-    await expect(page).toHaveURL(/dashboard/);
+    await page.waitForURL(/dashboard/);
     await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
     await expect(page.getByText('Time at Work')).toBeVisible();
   });
@@ -34,7 +34,7 @@ test.describe('OrangeHRM Functional Tests', () => {
     await page.getByRole('button', { name: 'Login' }).click();
 
     // Verify error message
-    await expect(page.getByText('Invalid credentials')).toBeVisible();
+    await expect(page.locator('.oxd-alert-content-text')).toHaveText('Invalid credentials');
     await expect(page).toHaveURL(/auth\/login/); // Still on login page
   });
 
@@ -45,7 +45,7 @@ test.describe('OrangeHRM Functional Tests', () => {
     await page.getByRole('button', { name: 'Login' }).click();
 
     // Navigate to Admin
-    await page.getByRole('link', { name: 'Admin' }).click();
+    await page.locator('span:has-text("Admin")').first().click();
     await expect(page).toHaveURL(/admin\/viewSystemUsers/);
     await expect(page.getByRole('heading', { name: 'System Users' })).toBeVisible();
   });
@@ -63,8 +63,8 @@ test.describe('OrangeHRM Functional Tests', () => {
     await page.locator('a:has-text("Logout")').click();
 
     // Verify back to login page
-    await expect(page).toHaveURL(/auth\/login/);
-    await expect(page.getByPlaceholder('Username')).toBeVisible();
+    await page.waitForURL(/auth\/login/);
+    await expect(page.locator('input[name="username"]')).toBeVisible();
   });
 
   test('Session validation after logout', async ({ page }) => {
@@ -78,9 +78,9 @@ test.describe('OrangeHRM Functional Tests', () => {
     await page.locator('a:has-text("Logout")').click();
 
     // Try to access dashboard directly
-    await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/dashboard/index');
+    await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/dashboard/index', { waitUntil: 'networkidle' });
     
     // Should be redirected back to login
-    await expect(page).toHaveURL(/auth\/login/);
+    await page.waitForURL(/auth\/login/);
   });
 });
