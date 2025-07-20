@@ -74,6 +74,29 @@ function isScreenshotValid(screenshotBuffer) {
 // Base URL
 const BASE_URL = 'https://opensource-demo.orangehrmlive.com/web/index.php';
 
+// Helper function for Directory tests
+async function loginAndNavigateToDirectory(page) {
+  // Ensure we're on login page
+  await page.goto(`${BASE_URL}/auth/login`);
+  
+  // Wait for login form with multiple checks
+  await Promise.all([
+    page.waitForSelector('input[name="username"]', { state: 'visible', timeout: 30000 }),
+    page.waitForSelector('input[name="password"]', { state: 'visible', timeout: 30000 }),
+    page.waitForSelector('button[type="submit"]', { state: 'visible', timeout: 30000 })
+  ]);
+
+  // Fill and submit form
+  await page.locator('input[name="username"]').fill(CREDENTIALS.username);
+  await page.locator('input[name="password"]').fill(CREDENTIALS.password);
+  await page.locator('button[type="submit"]').click();
+
+  // Wait for dashboard then navigate to Directory
+  await page.waitForURL(/dashboard/, { timeout: 30000 });
+  await page.locator('span:has-text("Directory")').first().click();
+  await page.waitForURL(/directory\/viewDirectory/, { timeout: 30000 });
+}
+
 // Test data
 const CREDENTIALS = {
   username: 'Admin',
@@ -483,24 +506,16 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       type: 'ISTQB',
       description: 'TC-012: Directory page basic validation'
     });
+    test.setTimeout(120000);
 
-    // Precondition: Login
-    await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
-    await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
-    await page.getByRole('button', { name: 'Login' }).click();
-    
-    // Test Case 1: Navigation to Directory
-    await test.step('Verify Directory page navigation', async () => {
-      await page.locator('span:has-text("Directory")').first().click();
-      await expect(page).toHaveURL(/directory\/viewDirectory/);
-      await expect(page.getByRole('heading', { name: 'Directory' })).toBeVisible();
-    });
+    await loginAndNavigateToDirectory(page);
 
-    // Test Case 2: Basic page elements validation
+    // Test Case 1: Verify page elements
     await test.step('Verify Directory page elements', async () => {
-      await expect(page.locator('.oxd-input')).toHaveCount(3); // Search fields
-      await expect(page.locator('.oxd-table')).toBeVisible(); // Employee table
-      await expect(page.locator('.orangehrm-paper-container')).toBeVisible(); // Main container
+      await expect(page.getByRole('heading', { name: 'Directory' })).toBeVisible();
+      await expect(page.locator('.oxd-input')).toHaveCount(3);
+      await expect(page.locator('.oxd-table')).toBeVisible();
+      await expect(page.locator('.orangehrm-paper-container')).toBeVisible();
     });
   });
 
@@ -509,12 +524,9 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       type: 'ISTQB',
       description: 'TC-013: Directory search functionality'
     });
+    test.setTimeout(120000);
 
-    // Precondition: Login and navigate to Directory
-    await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
-    await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
-    await page.getByRole('button', { name: 'Login' }).click();
-    await page.locator('span:has-text("Directory")').first().click();
+    await loginAndNavigateToDirectory(page);
 
     // Test Case 1: Search by name
     await test.step('Verify search by employee name', async () => {
@@ -553,12 +565,9 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       type: 'ISTQB',
       description: 'TC-014: Directory pagination boundary testing'
     });
+    test.setTimeout(120000);
 
-    // Precondition: Login and navigate to Directory
-    await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
-    await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
-    await page.getByRole('button', { name: 'Login' }).click();
-    await page.locator('span:has-text("Directory")').first().click();
+    await loginAndNavigateToDirectory(page);
 
     // Test Case 1: Verify pagination controls
     await test.step('Verify pagination controls visibility', async () => {
