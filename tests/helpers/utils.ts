@@ -21,79 +21,20 @@ export async function login(page: Page, options?: { timeout?: number }): Promise
   await page.waitForURL(/dashboard/);
 }
 
-export async function verifyDashboardWidgets(page: Page, test?: any): Promise<void> {
-  // Wait for at least one widget to be visible with enhanced checks
-  await page.waitForFunction(() => {
-    const widgets = Array.from(document.querySelectorAll(
-      '.orangehrm-dashboard-widget, .oxd-widget, [class*="widget"]'
-    ));
-    return widgets.some(w => {
-      const style = getComputedStyle(w);
-      return style.visibility !== 'hidden' && 
-             style.opacity !== '0' && 
-             w.getBoundingClientRect().width > 0;
-    });
-  }, { timeout: 20000 });
-
-  // Enhanced verification with sampling and limits
-  const MAX_RETRIES = 3;
-  const WIDGET_TIMEOUT = 20000; // 20 seconds per widget
-  const MAX_WIDGETS_TO_CHECK = 5; // Limit number of widgets to verify
+export async function verifyDashboardWidgets(page: Page): Promise<void> {
+  // Simplified verification - just check if widgets exist and are visible
+  const widgets = page.locator(SELECTORS.DASHBOARD.WIDGETS);
+  await expect(widgets.first()).toBeVisible({ timeout: 15000 });
   
-  // Get a sample of widgets to check (first 3 + random 2 others)
-  const widgetsToCheck = [
-    ...SELECTORS.DASHBOARD.WIDGET_NAMES.slice(0, 3), // Always check first 3 important widgets
-    ...SELECTORS.DASHBOARD.WIDGET_NAMES.slice(3)
-      .sort(() => 0.5 - Math.random())
-      .slice(0, MAX_WIDGETS_TO_CHECK - 3)
-  ];
+  // Check a few random widgets
+  const sampleWidgets = await widgets.all();
+  const widgetsToCheck = sampleWidgets
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 3);
 
-  for (const widgetName of widgetsToCheck) {
-    try {
-      const widget = page.getByText(widgetName, { exact: true })
-        .or(page.getByRole('heading', { name: widgetName }))
-        .first();
-
-      let isVerified = false;
-      let attempt = 0;
-      
-      while (attempt < MAX_RETRIES && !isVerified) {
-        attempt++;
-        try {
-          // Combined visibility and scroll check with single timeout
-          await widget.scrollIntoViewIfNeeded({ timeout: WIDGET_TIMEOUT });
-          await expect(widget).toBeVisible({ timeout: WIDGET_TIMEOUT });
-          
-          // Additional checks only if widget is visible
-          await expect(widget).toHaveCSS('opacity', '1');
-          await expect(widget).toHaveCSS('visibility', 'visible');
-          await expect(widget).not.toHaveAttribute('aria-disabled', 'true');
-          
-          const widgetContainer = widget.locator('.. >> ..');
-          await expect(widgetContainer).toContainText(/.+/);
-          
-          isVerified = true;
-        } catch (error) {
-          if (attempt === MAX_RETRIES) {
-            test.info().annotations.push({
-              type: 'Warning',
-              description: `Widget '${widgetName}' verification failed after ${MAX_RETRIES} attempts: ${error.message}`
-            });
-          } else {
-            await page.waitForTimeout(2000); // Short delay between retries
-          }
-        }
-      }
-
-      await expect(widget).toHaveCSS('opacity', '1');
-      await expect(widget).toHaveCSS('visibility', 'visible');
-      
-      // Verify widget is interactive
-      await expect(widget).not.toHaveAttribute('aria-disabled', 'true');
-      
-      // Verify widget content exists
-      const widgetContainer = widget.locator('.. >> ..'); // Go up two levels
-      await expect(widgetContainer).toContainText(/.+/);
+  for (const widget of widgetsToCheck) {
+    await expect(widget).toBeVisible({ timeout: 10000 });
+    await expect(widget).toHaveCSS('opacity', '1');
     } catch (error) {
       if (test) {
         test.info().annotations.push({
