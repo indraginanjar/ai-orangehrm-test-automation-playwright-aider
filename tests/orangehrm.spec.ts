@@ -107,41 +107,36 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
   });
 
   test('Successful login with valid credentials', async ({ page }) => {
+    test.setTimeout(30000); // Set explicit timeout
+    
     try {
+      // Initial page state verification
+      await expect(page.getByPlaceholder('Username')).toBeVisible();
+      await expect(page.getByPlaceholder('Password')).toBeVisible();
       await takeScreenshot(page, 'login-page-initial');
-    } catch (error) {
-      console.error('Initial screenshot failed, continuing test:', error.message);
-    }
 
-    // Fill form and capture
-    await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
-    await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
-    
-    try {
+      // Fill credentials with explicit waits
+      await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
+      await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
       await takeScreenshot(page, 'login-form-filled');
-    } catch (error) {
-      console.error('Form screenshot failed:', error.message);
-    }
-    
-    // Click and wait for navigation
-    await Promise.all([
-      page.waitForNavigation(),
-      page.getByRole('button', { name: 'Login' }).click()
-    ]);
-    
-    // Dashboard verification with proper waits
-    await page.waitForSelector('.oxd-dashboard-grid');
-    
-    try {
+
+      // Click login with proper navigation wait
+      const navigationPromise = page.waitForNavigation();
+      await page.getByRole('button', { name: 'Login' }).click();
+      await navigationPromise;
+
+      // Verify dashboard with multiple checks
+      await page.waitForURL(/dashboard/, { timeout: 10000 });
+      await page.waitForSelector('.oxd-dashboard-grid', { state: 'visible', timeout: 10000 });
+      await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible({ timeout: 5000 });
+      await expect(page.getByText('Time at Work').first()).toBeVisible({ timeout: 5000 });
+      
       await takeScreenshot(page, 'dashboard-loaded');
     } catch (error) {
-      console.error('Dashboard screenshot failed:', error.message);
-      // Consider failing test if screenshot is critical
-      // throw error;
+      console.error('Login test failed:', error);
+      await takeScreenshot(page, 'login-error');
+      throw error;
     }
-    
-    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
-    await expect(page.getByText('Time at Work')).toBeVisible();
   });
 
   test('Failed login with invalid credentials', async ({ page }) => {
