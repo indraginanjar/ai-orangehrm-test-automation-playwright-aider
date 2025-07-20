@@ -40,6 +40,11 @@ export default defineConfig({
     /* Capture screenshots and videos on failures */
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+    /* Viewport settings */
+    viewport: { width: 1280, height: 720 }, // Fixed viewport
+    launchOptions: {
+      slowMo: 100, // Small delay between actions
+    }
   },
 
   /* Configure projects for major browsers */

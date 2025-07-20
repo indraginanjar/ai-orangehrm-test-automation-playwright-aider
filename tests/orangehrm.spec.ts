@@ -10,11 +10,21 @@ if (!fs.existsSync('screenshots')) {
 async function takeScreenshot(page, name) {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const path = `screenshots/${name}-${timestamp}.png`;
+  
+  // Add stability checks before capturing
+  await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(500); // Small delay for UI stabilization
+  
+  // Capture with better options
   await page.screenshot({ 
     path,
     fullPage: true,
-    animations: 'disabled' // Disable animations for consistent screenshots
+    animations: 'disabled',
+    mask: [page.locator('.oxd-userdropdown-tab')], // Mask sensitive elements
+    timeout: 10000 // Longer timeout for screenshots
   });
+  
+  console.log(`Screenshot saved: ${path}`); // Debug logging
   return path;
 }
 
@@ -48,22 +58,29 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
   */
   test.beforeEach(async ({ page }) => {
     await page.goto(`${BASE_URL}/auth/login`);
+    await page.waitForSelector('.orangehrm-login-branding', { state: 'visible' });
+    await page.evaluate(() => document.fonts.ready); // Wait for fonts
+    await page.waitForLoadState('networkidle');
   });
 
   test('Successful login with valid credentials', async ({ page }) => {
-    // Capture initial state
-    await takeScreenshot(page, 'login-page');
+    // Initial screenshot with proper wait
+    await takeScreenshot(page, 'login-page-initial');
 
-    // Fill login form
+    // Fill form and capture
     await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
     await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
     await takeScreenshot(page, 'login-form-filled');
     
-    await page.getByRole('button', { name: 'Login' }).click();
-
-    // Verify dashboard appears after login
+    // Click and wait for navigation
+    await Promise.all([
+      page.waitForNavigation(),
+      page.getByRole('button', { name: 'Login' }).click()
+    ]);
+    
+    // Dashboard verification with proper waits
+    await page.waitForSelector('.oxd-dashboard-grid');
     await takeScreenshot(page, 'dashboard-loaded');
-    await page.waitForURL(/dashboard/);
     await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
     await expect(page.getByText('Time at Work')).toBeVisible();
   });
