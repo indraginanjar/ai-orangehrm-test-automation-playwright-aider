@@ -22,14 +22,14 @@
 |----------|-----------|----------|--------|
 | **Authentication** | Login/Logout, Session Security, Performance | 100% | ![Auth Tests](https://img.shields.io/badge/Auth-100%25-brightgreen) |
 | **Dashboard** | Widgets, Quick Launch, Negative Cases | 100% | ![Dashboard Tests](https://img.shields.io/badge/Dashboard-100%25-brightgreen) | 
-| **Directory** | Search, Pagination | 90% | ![Directory Tests](https://img.shields.io/badge/Directory-90%25-green) |
+| **Directory** | Search, Pagination, Navigation | 95% | ![Directory Tests](https://img.shields.io/badge/Directory-95%25-green) |
 
 ```mermaid
 pie
     title Test Coverage Distribution
     "Authentication" : 35
     "Dashboard" : 40
-    "Directory" : 40
+    "Directory" : 45
 ```
 
 ### 🔗 Quick Test Links
@@ -360,10 +360,10 @@ npx playwright show-report
 | TC-016 | Login page elements validation | High | Functional | Verify all login page elements | 1. On login page | 1. Check username field<br>2. Check password field<br>3. Check login button<br>4. Check forgot password link | 1. All elements visible<br>2. All elements enabled<br>3. Proper placeholders shown | FR-001 |
 | TC-017 | Login with network delays | Medium | Performance | Verify login with slow network | 1. On login page | 1. Enable network throttling<br>2. Attempt login | 1. Login succeeds<br>2. No timeout errors<br>3. UI remains responsive | PERF-001 |
 | TC-011 | Dashboard validation | High | Functional | Verify dashboard page components | 1. User logged in | 1. Navigate to dashboard<br>2. Check header<br>3. Verify widgets<br>4. Test quick launch | 1. Correct header shown<br>2. All widgets visible<br>3. Quick launch functional | FR-006 |
-| TC-015 | Dashboard with missing widgets | Medium | Negative | Verify dashboard behavior when widgets are missing | 1. User logged in | 1. Remove a widget<br>2. Verify count decreased<br>3. Check for errors | 1. Widget count decreases<br>2. No errors shown<br>3. UI remains stable | FR-006 |
+| TC-015 | Dashboard with missing widgets | Medium | Negative | Verify dashboard behavior when widgets are missing | 1. User logged in | 1. Remove a widget<br>2. Verify count decreased<br>3. Check for errors<br>4. Verify UI stability | 1. Widget count decreases<br>2. No errors shown<br>3. UI remains stable<br>4. Screenshot captured | FR-006 |
 | TC-012 | Directory basic validation | Medium | Functional | Verify Directory page navigation and elements | 1. User logged in | 1. Navigate to Directory<br>2. Verify page elements | 1. Correct URL<br>2. All elements visible | FR-007 |
 | TC-013 | Directory search | High | Functional | Verify search functionality | 1. On Directory page | 1. Search by name<br>2. Search by job title<br>3. Search by location | 1. Correct results for each filter | FR-008 |
-| TC-014 | Directory pagination | Low | Boundary | Verify pagination controls | 1. On Directory page | 1. Test first page<br>2. Test last page | 1. Pagination works correctly | UI-003 |
+| TC-014 | Directory pagination | Medium | Boundary | Verify pagination controls | 1. On Directory page | 1. Test first page<br>2. Test last page<br>3. Verify page counts | 1. Pagination works correctly<br>2. Page counts accurate | UI-003 |
 
 ### 🔍 Test Attributes
 1. **Test Case ID**: Unique TC-XXX identifier  
