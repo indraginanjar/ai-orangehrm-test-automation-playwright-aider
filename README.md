@@ -51,6 +51,9 @@ TEST_TYPE=@security npx playwright test
 
 # Run boundary tests
 TEST_TYPE=@boundary npx playwright test
+
+# Run mock tests (faster alternative for CI/local development)
+TEST_TYPE=@mock npx playwright test
 ```
 
 ### Run in other browsers:
@@ -66,6 +69,32 @@ npx playwright test --project webkit
 ```bash
 npx playwright test --ui
 ```
+
+## Mock Testing
+
+For faster test execution during development, we provide mock versions of certain tests:
+
+1. **Session Timeout Simulation** (`@mock @security`):
+   - Simulates session timeout by clearing cookies instead of waiting
+   - Runs in seconds instead of minutes
+   - Same validation as real test
+
+Usage:
+```bash
+# Run only mock tests
+TEST_TYPE=@mock npx playwright test
+
+# Run all tests except mocks (default)
+npx playwright test
+
+# Run both real and mock tests
+npx playwright test --grep-invert nothing
+```
+
+Mock tests are automatically excluded by default (see playwright.config.ts). They are useful for:
+- Local development
+- CI pipelines where test speed is critical
+- Debugging test logic without long waits
 
 ## Viewing Reports
 
