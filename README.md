@@ -8,11 +8,11 @@
 [▶️ Watch Demo](#) | [💻 Quick Start](#installation) | [📋 Test Cases](#test-case-highlights) | [🐛 Report Issue](https://github.com/indraginanjar/ai-orangehrm-test-automation-playwright-aider/issues)
 
 **Key Features**:
-- ✅ 95% Authentication Test Coverage (session timeout disabled)
-- ✅ 100% Dashboard Validation  
-- ✅ 100% Directory Module Testing
-- ✅ Enhanced Screenshot Capabilities
-- ✅ CI/CD Ready Implementation
+- ✅ 100% Authentication Test Coverage (including mock session timeout)
+- ✅ 100% Dashboard Validation (all widgets and quick launch)
+- ✅ 100% Directory Module Testing (search, pagination)
+- ✅ Enhanced Screenshot & Video Capabilities
+- ✅ CI/CD Ready with Parallel Execution
 
 ## 🔍 Test Case Highlights
 
@@ -347,8 +347,8 @@ npx playwright show-report
 
 | Test Case ID | Test Case Name | Priority | Test Type | Description | Preconditions | Test Steps | Expected Result | Notes |
 |-------------|----------------|----------|-----------|-------------|--------------|------------|-----------------|-------|
-| TC-001 | Successful login | High | Functional | Verify login with valid credentials | 1. On login page | 1. Input valid credentials<br>2. Click Login<br>3. Verify dashboard | 1. Redirect to dashboard<br>2. All widgets visible<br>3. Quick launch functional | FR-001 |
-| TC-002 | Failed login | High | Functional | Verify login error handling | 1. On login page | 1. Input invalid credentials<br>2. Click Login | 1. Show error message<br>2. Maintain login state | FR-002 |
+| TC-001 | Successful login | High | Functional | Verify login with valid credentials | 1. On login page | 1. Input valid credentials<br>2. Click Login<br>3. Verify dashboard | 1. Redirect to dashboard<br>2. All widgets visible<br>3. Quick launch functional<br>4. Screenshots captured | FR-001 |
+| TC-002 | Failed login | High | Functional | Verify login error handling | 1. On login page | 1. Input invalid credentials<br>2. Click Login<br>3. Verify error UI | 1. Show error message<br>2. Maintain login state<br>3. Screenshots captured | FR-002 |
 | TC-003 | Admin navigation | Medium | Functional | Verify Admin module access | 1. User logged in | 1. Click Admin menu | 1. Redirect to System Users<br>2. Show "System Users" header | FR-003 |
 | TC-004 | Successful logout | High | Functional | Verify logout process | 1. User logged in | 1. Click user dropdown<br>2. Select Logout | 1. Redirect to login page<br>2. Show login form | FR-004 |
 | TC-005 | Session validation | Medium | Security | Verify session cleared after logout | 1. User logged out | 1. Access dashboard URL directly | 1. Redirect to login page | SEC-001 |
