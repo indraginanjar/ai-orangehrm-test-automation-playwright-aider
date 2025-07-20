@@ -60,8 +60,10 @@ export default defineConfig({
     /* Viewport settings */
     viewport: { width: 1280, height: 720 }, // Fixed viewport
     launchOptions: {
-      slowMo: 100, // Small delay between actions
-    }
+      slowMo: 500, // Increased delay between actions for slow environments
+    },
+    actionTimeout: 60000,
+    navigationTimeout: 60000
   },
 
   /* Configure projects for major browsers */

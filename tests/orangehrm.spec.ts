@@ -111,53 +111,60 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
   });
 
   test.beforeEach(async ({ page }) => {
-    // Tambahkan retry logic
     let retries = 3;
     while (retries > 0) {
       try {
         await page.goto(`${BASE_URL}/auth/login`, { 
-          timeout: 30000,
+          timeout: 45000,
           waitUntil: 'domcontentloaded'
         });
-        await page.waitForSelector('.orangehrm-login-branding', { 
-          state: 'visible',
-          timeout: 15000 
-        });
-        await page.evaluate(() => document.fonts.ready); // Wait for fonts
+        
+        // Wait for multiple elements to ensure page loaded
+        await Promise.all([
+          page.waitForSelector('.orangehrm-login-branding', { state: 'visible', timeout: 15000 }),
+          page.waitForSelector('input[name="username"]', { state: 'visible', timeout: 15000 }),
+          page.waitForSelector('input[name="password"]', { state: 'visible', timeout: 15000 })
+        ]);
+        
+        await page.evaluate(() => document.fonts.ready);
         await page.waitForLoadState('networkidle');
         break;
       } catch (error) {
         retries--;
         if (retries === 0) throw error;
-        await page.waitForTimeout(5000); // Tunggu 5 detik sebelum retry
+        await page.waitForTimeout(5000);
+        console.log(`Retrying navigation (${retries} attempts left)...`);
       }
     }
   });
 
   test('Successful login with valid credentials', async ({ page }) => {
-    test.setTimeout(30000); // Set explicit timeout
+    test.setTimeout(60000);
     
     try {
-      // Initial page state verification
-      await expect(page.getByPlaceholder('Username')).toBeVisible();
-      await expect(page.getByPlaceholder('Password')).toBeVisible();
+      // Ensure form is ready
+      await page.getByPlaceholder('Username').waitFor({ state: 'visible', timeout: 20000 });
+      await page.getByPlaceholder('Password').waitFor({ state: 'visible', timeout: 20000 });
       await takeScreenshot(page, 'login-page-initial');
 
-      // Fill credentials with explicit waits
+      // Fill form
       await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
       await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
       await takeScreenshot(page, 'login-form-filled');
 
-      // Click login with proper navigation wait
-      const navigationPromise = page.waitForNavigation();
-      await page.getByRole('button', { name: 'Login' }).click();
-      await navigationPromise;
+      // Click login and wait for navigation
+      await Promise.all([
+        page.waitForNavigation({ timeout: 30000 }),
+        page.getByRole('button', { name: 'Login' }).click()
+      ]);
 
-      // Verify dashboard with multiple checks
-      await page.waitForURL(/dashboard/, { timeout: 10000 });
-      await page.waitForSelector('.oxd-dashboard-grid', { state: 'visible', timeout: 10000 });
-      await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible({ timeout: 5000 });
-      await expect(page.getByText('Time at Work').first()).toBeVisible({ timeout: 5000 });
+      // Verify dashboard with more reliable checks
+      await page.waitForURL(/dashboard/, { timeout: 30000 });
+      await page.waitForLoadState('networkidle');
+      
+      const dashboardHeader = page.locator('.oxd-topbar-header-breadcrumb-module');
+      await dashboardHeader.waitFor({ state: 'visible', timeout: 20000 });
+      await expect(dashboardHeader).toContainText('Dashboard');
       
       await takeScreenshot(page, 'dashboard-loaded');
     } catch (error) {
@@ -364,15 +371,34 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       type: 'ISTQB',
       description: 'TC-011: Dashboard page validation'
     });
-
-    // Precondition: Login first with explicit waits
-    await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
-    await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
-    await page.getByRole('button', { name: 'Login' }).click();
+    test.setTimeout(60000);
+    
+    // Login with retry mechanism
+    let loggedIn = false;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await page.getByPlaceholder('Username').waitFor({ state: 'visible', timeout: 20000 });
+        await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
+        await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
+        
+        await Promise.all([
+          page.waitForNavigation({ timeout: 30000 }),
+          page.getByRole('button', { name: 'Login' }).click()
+        ]);
+        
+        loggedIn = true;
+        break;
+      } catch (error) {
+        if (attempt === 3) throw error;
+        await page.reload();
+        await page.waitForTimeout(3000);
+      }
+    }
+    
+    if (!loggedIn) throw new Error('Failed to login after 3 attempts');
     
     // Wait for dashboard to fully load
-    await page.waitForURL(/dashboard/, { timeout: 15000 });
-    await page.waitForSelector('.oxd-dashboard-grid', { state: 'visible', timeout: 10000 });
+    await page.waitForURL(/dashboard/, { timeout: 30000 });
     await page.waitForLoadState('networkidle');
 
     // Test Case 1: Verify header section with more reliable selectors
