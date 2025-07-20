@@ -6,7 +6,13 @@ export const SELECTORS = {
   },
   DASHBOARD: {
     HEADER: '.oxd-topbar-header-breadcrumb-module',
-    WIDGETS: '.oxd-dashboard-grid'
+    WIDGETS: '.orangehrm-dashboard-grid', // Primary selector
+    WIDGET_NAMES: [
+      'Time at Work',
+      'My Actions', 
+      'Quick Launch',
+      'Employees on Leave Today'
+    ]
   },
   DIRECTORY: {
     TABLE: '.orangehrm-container',

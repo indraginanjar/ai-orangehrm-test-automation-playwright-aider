@@ -21,6 +21,26 @@ export async function login(page: Page): Promise<void> {
   await page.waitForURL(/dashboard/);
 }
 
+export async function verifyDashboardWidgets(page: Page): Promise<void> {
+  // Wait for at least one widget to be visible
+  await page.waitForFunction(() => {
+    const widgets = Array.from(document.querySelectorAll(
+      '.orangehrm-dashboard-widget, .oxd-widget, [class*="widget"]'
+    ));
+    return widgets.some(w => getComputedStyle(w).visibility !== 'hidden');
+  }, { timeout: 15000 });
+
+  // Verify each expected widget exists
+  for (const widgetName of SELECTORS.DASHBOARD.WIDGET_NAMES) {
+    const widget = page.getByText(widgetName, { exact: true })
+      .or(page.getByRole('heading', { name: widgetName }))
+      .first();
+    
+    await widget.scrollIntoViewIfNeeded();
+    await expect(widget).toBeVisible({ timeout: 10000 });
+  }
+}
+
 export async function navigateToDirectory(page: Page): Promise<void> {
   await page.locator('span:has-text("Directory")').click();
   await page.waitForURL(/directory/);

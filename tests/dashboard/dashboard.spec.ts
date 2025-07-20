@@ -19,21 +19,9 @@ test.describe('Dashboard Tests', () => {
       await expect(dashboardHeader).toContainText('Dashboard');
     });
 
-    // Verify widgets
+    // Verify widgets using helper function
     await test.step('Verify dashboard widgets', async () => {
-      const widgetContainer = page.locator(SELECTORS.DASHBOARD.WIDGETS);
-      await expect(widgetContainer).toBeVisible();
-      
-      const expectedWidgets = [
-        'Time at Work',
-        'My Actions',
-        'Quick Launch',
-        'Employees on Leave Today'
-      ];
-
-      for (const widget of expectedWidgets) {
-        await expect(page.getByText(widget, { exact: true }).first()).toBeVisible();
-      }
+      await verifyDashboardWidgets(page);
     });
 
     // Post-test screenshot
