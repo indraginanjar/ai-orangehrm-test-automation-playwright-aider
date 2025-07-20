@@ -542,36 +542,23 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
 
     await test.step('Verify Directory page elements', async () => {
       // Verify main heading
-      await expect(page.locator('.oxd-topbar-header-breadcrumb-module').getByText('Directory')).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Directory' })).toBeVisible();
       
       // Verify search fields
-      await expect(page.locator('.oxd-input')).toBeVisible();
+      await expect(page.getByPlaceholder('Search')).toBeVisible();
       
       // Wait for directory page to fully load
       await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(2000); // Additional stabilization time
       
-      // Try multiple table selectors with fallbacks
-      const tableSelectors = [
-        '.oxd-table',
-        '.orangehrm-container',
-        '.oxd-table-card'
-      ];
+      // Check for either data table or no data message
+      const table = page.locator('.oxd-table-body');
+      const noDataMessage = page.getByText('No Records Found');
       
-      let tableFound = false;
-      for (const selector of tableSelectors) {
-        try {
-          await page.waitForSelector(selector, { state: 'visible', timeout: 15000 });
-          tableFound = true;
-          break;
-        } catch (error) {
-          console.log(`Table not found with selector ${selector}`);
-        }
-      }
-      
-      if (!tableFound) {
-        // Check for no data message as fallback
-        await expect(page.locator('.oxd-text:has-text("No Records Found")')).toBeVisible({ timeout: 10000 });
-      }
+      await Promise.race([
+        table.waitFor({ state: 'visible', timeout: 15000 }),
+        noDataMessage.waitFor({ state: 'visible', timeout: 15000 })
+      ]);
       const firstRow = page.locator('.oxd-table-card').first();
       const noDataMessage = page.locator('.oxd-text:has-text("No Records Found")');
       
@@ -618,39 +605,24 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       await page.locator('button:has-text("Reset")').click();
       await page.waitForTimeout(2000);
       
-      // Search with retry logic
-      let searchSuccess = false;
-      const searchTerm = 'Odis';
+      // Search with full name and better selectors
+      await page.getByPlaceholder('Search').fill(TEST_DATA.directory.searchName);
+      await page.getByRole('button', { name: 'Search' }).click();
       
-      for (let attempt = 1; attempt <= 3; attempt++) {
-        console.log(`Search attempt ${attempt} for "${searchTerm}"`);
-        
-        await page.locator('.oxd-input').first().fill(searchTerm);
-        await page.locator('button:has-text("Search")').click();
-        
-        try {
-          await page.waitForLoadState('networkidle');
-          
-          // Check for results or no data message
-          const resultsLocator = page.locator('.oxd-table-card,.oxd-table-row').first();
-          const noDataLocator = page.locator('.oxd-text:has-text("No Records Found")');
-          
-          await Promise.race([
-            resultsLocator.waitFor({ state: 'visible', timeout: 10000 }),
-            noDataLocator.waitFor({ state: 'visible', timeout: 10000 })
-          ]);
-          
-          searchSuccess = true;
-          break;
-        } catch (error) {
-          console.log(`Search attempt ${attempt} failed: ${error.message}`);
-          if (attempt === 3) {
-            await takeScreenshot(page, 'directory-search-failure');
-            throw new Error(`Search failed after 3 attempts: ${error.message}`);
-          }
-          await page.waitForTimeout(3000);
-        }
-      }
+      // Wait for results
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(2000); // Additional stabilization time
+      
+      // Verify results
+      const resultsTable = page.locator('.oxd-table-body');
+      await resultsTable.waitFor({ state: 'visible', timeout: 15000 });
+      
+      // Verify expected number of rows
+      const rows = await resultsTable.locator('.oxd-table-card').count();
+      expect(rows).toBeGreaterThanOrEqual(TEST_DATA.directory.expectedRows);
+      
+      // Verify search result contains expected name
+      await expect(page.getByText(TEST_DATA.directory.searchName, { exact: false })).toBeVisible();
       
     });
 

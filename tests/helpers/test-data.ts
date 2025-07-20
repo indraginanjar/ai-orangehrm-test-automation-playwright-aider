@@ -12,9 +12,10 @@ export const TEST_DATA = {
     }
   },
   directory: {
-    searchName: 'Odis',
+    searchName: 'Odis Adalwin',
     jobTitle: 'Chief Executive Officer',
-    location: 'Texas R&D'
+    location: 'Texas R&D',
+    expectedRows: 1
   }
 };
 
