@@ -51,14 +51,24 @@ test.describe('Dashboard Tests', () => {
       
       // Boundary test - slow network
       await test.step('Verify widget loading under slow network', async () => {
-        // Simulate very slow 3G network
-        await page.emulateNetworkConditions({ 
-          offline: false,
-          downloadThroughput: 500 * 1024 / 8, // 500 Kbps
-          uploadThroughput: 500 * 1024 / 8,
-          latency: 200
+        // Get the context to set network conditions
+        const context = page.context();
+        
+        // Enable network throttling
+        await context.setOffline(false);
+        await context.route('**', route => route.continue());
+        
+        // Add delay to simulate slow network
+        await context.route('**', route => {
+          return new Promise(resolve => 
+            setTimeout(() => resolve(route.continue()), 500
+          );
         });
+        
         await verifyDashboardWidgets(page, test, { timeout: 90000 }); // 90s timeout for slow network
+        
+        // Reset network conditions
+        await context.unroute('**');
       });
     });
 
