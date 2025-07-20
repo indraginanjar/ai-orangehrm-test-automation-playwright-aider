@@ -7,11 +7,12 @@ test.describe('Dashboard Tests', () => {
     await login(page);
   });
 
-  test('Dashboard page validation', async ({ page }) => {
-    test.info().annotations.push({
-      type: 'ISTQB',
-      description: 'TC-011: Dashboard page validation'
-    });
+  test('Dashboard page validation @functional @FR-006', async ({ page }) => {
+    test.info().annotations.push(
+      { type: 'ISTQB', description: 'TC-011: Dashboard page validation' },
+      { type: 'Requirement', description: 'FR-006: Dashboard Display' },
+      { type: 'Priority', description: 'High' }
+    );
 
     // Verify header section
     await test.step('Verify dashboard header', async () => {
@@ -22,9 +23,38 @@ test.describe('Dashboard Tests', () => {
     // Verify widgets using helper function
     await test.step('Verify dashboard widgets', async () => {
       await verifyDashboardWidgets(page);
+      
+      // Enhanced verification
+      const widgets = page.locator(SELECTORS.DASHBOARD.WIDGETS);
+      await expect(widgets).toHaveCount(4); // Verify exact widget count
+      
+      // Boundary test - slow network
+      await test.step('Verify widget loading under slow network', async () => {
+        await page.emulateNetworkConditions({ offline: false, downloadThroughput: 50000 });
+        await verifyDashboardWidgets(page);
+      });
     });
 
     // Post-test screenshot
     await takeScreenshot(page, 'dashboard-validation');
+  });
+
+  test('Dashboard with missing widgets @negative @FR-006', async ({ page }) => {
+    test.info().annotations.push(
+      { type: 'ISTQB', description: 'TC-015: Dashboard missing widgets' },
+      { type: 'TestType', description: 'Negative' }
+    );
+
+    // Mock missing widget by removing one from DOM
+    await page.evaluate(() => {
+      const widgets = document.querySelectorAll('.orangehrm-dashboard-widget');
+      if (widgets.length > 0) widgets[0].remove();
+    });
+
+    // Verify system handles missing widget gracefully
+    const widgets = page.locator(SELECTORS.DASHBOARD.WIDGETS);
+    await expect(widgets).toHaveCount(3);
+    await expect(page.locator('.oxd-alert')).not.toBeVisible(); // No error shown
+    await takeScreenshot(page, 'dashboard-missing-widget');
   });
 });

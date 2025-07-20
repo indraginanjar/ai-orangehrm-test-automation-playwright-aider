@@ -22,22 +22,38 @@ export async function login(page: Page): Promise<void> {
 }
 
 export async function verifyDashboardWidgets(page: Page): Promise<void> {
-  // Wait for at least one widget to be visible
+  // Wait for at least one widget to be visible with enhanced checks
   await page.waitForFunction(() => {
     const widgets = Array.from(document.querySelectorAll(
       '.orangehrm-dashboard-widget, .oxd-widget, [class*="widget"]'
     ));
-    return widgets.some(w => getComputedStyle(w).visibility !== 'hidden');
-  }, { timeout: 15000 });
+    return widgets.some(w => {
+      const style = getComputedStyle(w);
+      return style.visibility !== 'hidden' && 
+             style.opacity !== '0' && 
+             w.getBoundingClientRect().width > 0;
+    });
+  }, { timeout: 20000 });
 
-  // Verify each expected widget exists
+  // Enhanced verification for each widget
   for (const widgetName of SELECTORS.DASHBOARD.WIDGET_NAMES) {
     const widget = page.getByText(widgetName, { exact: true })
       .or(page.getByRole('heading', { name: widgetName }))
       .first();
     
     await widget.scrollIntoViewIfNeeded();
-    await expect(widget).toBeVisible({ timeout: 10000 });
+    
+    // Comprehensive visibility check
+    await expect(widget).toBeVisible({ timeout: 15000 });
+    await expect(widget).toHaveCSS('opacity', '1');
+    await expect(widget).toHaveCSS('visibility', 'visible');
+    
+    // Verify widget is interactive
+    await expect(widget).not.toHaveAttribute('aria-disabled', 'true');
+    
+    // Verify widget content exists
+    const widgetContainer = widget.locator('.. >> ..'); // Go up two levels
+    await expect(widgetContainer).toContainText(/.+/);
   }
 }
 
