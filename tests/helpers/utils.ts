@@ -13,7 +13,7 @@ export async function takeScreenshot(page: Page, name: string): Promise<void> {
   });
 }
 
-export async function login(page: Page): Promise<void> {
+export async function login(page: Page, options?: { timeout?: number }): Promise<void> {
   await page.goto(`${BASE_URL}/auth/login`);
   await page.locator(SELECTORS.LOGIN.USERNAME).fill(TEST_DATA.credentials.valid.username);
   await page.locator(SELECTORS.LOGIN.PASSWORD).fill(TEST_DATA.credentials.valid.password);

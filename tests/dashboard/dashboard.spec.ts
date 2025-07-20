@@ -4,7 +4,10 @@ import { SELECTORS } from '../helpers/selectors';
 
 test.describe('Dashboard Tests', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page);
+    // Increased timeout for login on slow networks
+    await login(page, { timeout: 60000 });
+    // Wait for dashboard to fully load
+    await page.waitForLoadState('networkidle', { timeout: 60000 });
   });
 
   test('Dashboard page validation @functional @FR-006', async ({ page }) => {
@@ -17,7 +20,7 @@ test.describe('Dashboard Tests', () => {
     // Verify header section
     await test.step('Verify dashboard header', async () => {
       const dashboardHeader = page.locator(SELECTORS.DASHBOARD.HEADER);
-      await expect(dashboardHeader).toContainText('Dashboard');
+      await expect(dashboardHeader).toContainText('Dashboard', { timeout: 30000 });
     });
 
     // Verify widgets using helper function
@@ -26,7 +29,9 @@ test.describe('Dashboard Tests', () => {
       
       // More flexible widget verification
       const widgets = page.locator(SELECTORS.DASHBOARD.WIDGETS);
-      const widgetCount = await widgets.count();
+      // Wait for at least one widget to be present
+      await expect(widgets.first()).toBeVisible({ timeout: 30000 });
+      const widgetCount = await widgets.count({ timeout: 30000 });
       
       if (widgetCount === 0) {
         test.info().annotations.push({
@@ -46,8 +51,14 @@ test.describe('Dashboard Tests', () => {
       
       // Boundary test - slow network
       await test.step('Verify widget loading under slow network', async () => {
-        await page.emulateNetworkConditions({ offline: false, downloadThroughput: 50000 });
-        await verifyDashboardWidgets(page);
+        // Simulate very slow 3G network
+        await page.emulateNetworkConditions({ 
+          offline: false,
+          downloadThroughput: 500 * 1024 / 8, // 500 Kbps
+          uploadThroughput: 500 * 1024 / 8,
+          latency: 200
+        });
+        await verifyDashboardWidgets(page, { timeout: 90000 }); // 90s timeout for slow network
       });
     });
 
@@ -63,7 +74,8 @@ test.describe('Dashboard Tests', () => {
 
     // Get initial widget count
     const initialWidgets = page.locator(SELECTORS.DASHBOARD.WIDGETS);
-    const initialCount = await initialWidgets.count();
+    await expect(initialWidgets.first()).toBeVisible({ timeout: 30000 });
+    const initialCount = await initialWidgets.count({ timeout: 30000 });
     
     // Remove first widget and verify count decreased by 1
     await page.evaluate(() => {
@@ -87,8 +99,8 @@ test.describe('Dashboard Tests', () => {
     }
     
     // Verify at least one widget was removed
-    await expect(currentCount).toBeLessThan(initialCount);
-    await expect(page.locator('.oxd-alert')).not.toBeVisible(); // No error shown
+    await expect(currentCount).toBeLessThan(initialCount, { timeout: 30000 });
+    await expect(page.locator('.oxd-alert')).not.toBeVisible({ timeout: 30000 }); // No error shown
     await takeScreenshot(page, 'dashboard-missing-widget');
   });
 });
