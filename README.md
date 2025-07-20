@@ -483,53 +483,115 @@ npx playwright show-report
 - Form layout stability
 - Responsive behavior
 
-### Selector Structure
+### Selector Architecture
 
-The selectors are centrally managed in `tests/helpers/selectors.ts` with this structure:
+The selectors are centrally managed in `tests/helpers/selectors.ts` with a hierarchical structure:
 
 ```typescript
 export const SELECTORS = {
+  // Login page selectors
   LOGIN: {
-    USERNAME: 'input[name="username"]',
-    PASSWORD: 'input[name="password"]',
-    SUBMIT: 'button[type="submit"]'
+    USERNAME: 'input[name="username"]',  // Prefer name attributes
+    PASSWORD: 'input[name="password"]',  // More stable than classes
+    SUBMIT: 'button[type="submit"]'      // Semantic attribute
   },
+  
+  // Dashboard page selectors  
   DASHBOARD: {
     HEADER: '.oxd-topbar-header-breadcrumb-module',
     WIDGETS: '.orangehrm-dashboard-widget',
-    WIDGET_NAMES: [
+    WIDGET_NAMES: [  // Used for validation
       'Time at Work',
       'My Actions',
-      // ... other widget names
+      // ...11 total widgets
     ]
   },
+  
+  // Directory module selectors
   DIRECTORY: {
-    TABLE: '.orangehrm-container, .oxd-table',
+    TABLE: '.orangehrm-container, .oxd-table, [role="table"]', // Multiple fallbacks
     SEARCH_INPUT: ':nth-match(.oxd-input, 1)',
+    SEARCH_BUTTON: 'button:has-text("Search")',
+    RESET_BUTTON: 'button:has-text("Reset")',
+    TABLE_ROW: '.oxd-table-card, .oxd-table-row', // Multiple row formats
     NO_DATA: '.oxd-table-cell:has-text("No Records Found")'
   },
-  // ... other selector groups
-} as const;
+  
+  // User dropdown selectors
+  USER: {
+    DROPDOWN: '.oxd-userdropdown-tab',
+    LOGOUT: 'a:has-text("Logout")'  // Text-based for clarity
+  },
+  
+  // Admin module selectors  
+  ADMIN: {
+    MENU: 'span:has-text("Admin")',
+    HEADER: 'h5:has-text("System Users")'
+  }
+} as const;  // Type-safe constant
 ```
 
-**Key Features:**
-1. **Organized by Page/Module**: Logical grouping (Login, Dashboard, Directory etc)
-2. **Multiple Selector Options**: Some elements have multiple selector options for resilience
-3. **Type Safety**: `as const` ensures type inference works correctly
-4. **Widget Names**: Dashboard widget names are explicitly listed for validation
+**Key Principles**:
+1. **Modular Organization**:
+   - Grouped by page/component (Login, Dashboard, etc.)
+   - Nested structure mirrors UI hierarchy
+   - Clear naming convention (UPPER_CASE for constants)
 
-**Usage Examples:**
+2. **Resilient Selection**:
+   - Multiple fallback selectors for critical elements (TABLE)
+   - Combination of attribute and text-based selectors
+   - Semantic attributes preferred over classes
+
+3. **Type Safety**:
+   - `as const` ensures exact type inference
+   - Prevents accidental selector modifications
+   - Enables IDE autocompletion
+
+**Usage Patterns**:
+
 ```typescript
-// Using selectors
+// Basic usage
 await page.locator(SELECTORS.LOGIN.USERNAME).fill('admin');
-await page.locator(SELECTORS.DASHBOARD.WIDGETS).first().click();
+
+// With dynamic values
+const widgetName = 'Time at Work';
+await page.locator(`text=${widgetName}`).click();
+
+// Complex interactions
+await page.locator(SELECTORS.DIRECTORY.TABLE)
+  .locator(SELECTORS.DIRECTORY.TABLE_ROW)
+  .first()
+  .click();
 ```
 
-**Best Practices:**
-- Always reference selectors through this central file
-- Add new selectors here rather than scattering through tests
-- Use the most specific selector needed for each element
-- Prefer stable attributes like `name` over CSS classes
+**Best Practices**:
+1. **Selector Design**:
+   - Prefer `name`, `role`, `type` attributes over classes
+   - Use text selectors (`:has-text()`) for dynamic content
+   - Include multiple options for critical elements
+
+2. **Maintenance**:
+   - Add new selectors only to this central file
+   - Document complex selectors with comments
+   - Review selectors after UI changes
+
+3. **Performance**:
+   - Use specific selectors over generic ones
+   - Chain selectors for complex elements
+   - Avoid overusing `:has-text()` for performance
+
+**Selector Types Used**:
+| Type | Example | When to Use |
+|------|---------|-------------|
+| Attribute | `input[name="username"]` | Form elements, stable components |
+| Text | `:has-text("Logout")` | Buttons, labels, dynamic content |  
+| Class | `.oxd-table` | When no better options exist |
+| Combined | `button.oxd-button:has-text("Save")` | Precise targeting |
+
+**Versioning**:
+- Selectors are versioned with the application
+- Major UI changes may require selector updates
+- Deprecated selectors should be marked with `@deprecated`
 
 ### Test Data Structure
 
