@@ -21,7 +21,7 @@ export async function login(page: Page, options?: { timeout?: number }): Promise
   await page.waitForURL(/dashboard/);
 }
 
-export async function verifyDashboardWidgets(page: Page): Promise<void> {
+export async function verifyDashboardWidgets(page: Page, test?: any): Promise<void> {
   // Wait for at least one widget to be visible with enhanced checks
   await page.waitForFunction(() => {
     const widgets = Array.from(document.querySelectorAll(
@@ -84,10 +84,14 @@ export async function verifyDashboardWidgets(page: Page): Promise<void> {
       const widgetContainer = widget.locator('.. >> ..'); // Go up two levels
       await expect(widgetContainer).toContainText(/.+/);
     } catch (error) {
-      test.info().annotations.push({
-        type: 'Error',
-        description: `Error verifying widget '${widgetName}': ${error.message}`
-      });
+      if (test) {
+        test.info().annotations.push({
+          type: 'Error',
+          description: `Error verifying widget '${widgetName}': ${error.message}`
+        });
+      } else {
+        console.error(`Error verifying widget '${widgetName}':`, error);
+      }
     }
   }
 }

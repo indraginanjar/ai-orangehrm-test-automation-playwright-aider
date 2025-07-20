@@ -25,7 +25,7 @@ test.describe('Dashboard Tests', () => {
 
     // Verify widgets using helper function
     await test.step('Verify dashboard widgets', async () => {
-      await verifyDashboardWidgets(page);
+      await verifyDashboardWidgets(page, test);
       
       // More flexible widget verification
       const widgets = page.locator(SELECTORS.DASHBOARD.WIDGETS);
@@ -58,7 +58,7 @@ test.describe('Dashboard Tests', () => {
           uploadThroughput: 500 * 1024 / 8,
           latency: 200
         });
-        await verifyDashboardWidgets(page, { timeout: 90000 }); // 90s timeout for slow network
+        await verifyDashboardWidgets(page, test, { timeout: 90000 }); // 90s timeout for slow network
       });
     });
 
