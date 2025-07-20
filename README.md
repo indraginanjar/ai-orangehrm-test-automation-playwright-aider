@@ -1,17 +1,46 @@
-# OrangeHRM Test Automation with Playwright
+# AI-Assisted OrangeHRM Test Automation with Playwright
 
-This project provides automated testing for the OrangeHRM demo application using Playwright, following ISTQB testing standards.
+This project demonstrates the creation of automated tests for OrangeHRM using Playwright, developed with the assistance of:
+- **Aider** as the AI pair programming tool  
+- **DeepSeek** as the LLM model  
+- Following ISTQB testing standards  
 
-## Features
+## Key Features
 
-- Comprehensive test coverage including:
-  - Authentication (login/logout)
-  - Navigation
-  - Boundary testing
-  - Security testing
-- ISTQB-aligned test cases
-- Cross-browser testing support
-- HTML test reporting
+- **AI-Assisted Development**: 
+  - Entire test suite co-developed with AI using aider  
+  - DeepSeek model provided intelligent test case suggestions  
+  - Automated code reviews and optimizations  
+
+- **Comprehensive Test Coverage**:
+  - Authentication (login/logout) workflows  
+  - Navigation testing  
+  - Boundary value analysis  
+  - Security validation  
+
+- **ISTQB-Aligned**:
+  - Standardized test case documentation  
+  - Traceability matrix  
+  - Proper test categorization  
+
+## Development Approach
+
+1. **AI Pair Programming**:
+   - Used aider for real-time code suggestions  
+   - DeepSeek model helped with:
+     - Test case generation  
+     - Playwright API usage  
+     - Error troubleshooting  
+
+2. **Iterative Development**:
+   - Started with basic login tests  
+   - Expanded to full test suite  
+   - Continuously refined with AI feedback  
+
+3. **Quality Assurance**:
+   - AI-assisted code reviews  
+   - Automated test execution  
+   - Continuous improvements  
 
 ## Prerequisites
 
