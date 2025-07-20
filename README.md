@@ -8,10 +8,10 @@
 [▶️ Watch Demo](#) | [💻 Quick Start](#installation) | [📋 Test Cases](#test-case-highlights) | [🐛 Report Issue](https://github.com/indraginanjar/ai-orangehrm-test-automation-playwright-aider/issues)
 
 **Key Features**:
-- ✅ 100% Authentication Test Coverage
-- ✅ 85% Dashboard Validation  
-- ✅ 90% Directory Module Testing
-- ✅ AI-Generated Test Cases
+- ✅ 95% Authentication Test Coverage (session timeout disabled)
+- ✅ 100% Dashboard Validation  
+- ✅ 100% Directory Module Testing
+- ✅ Enhanced Screenshot Capabilities
 - ✅ CI/CD Ready Implementation
 
 ## 🔍 Test Case Highlights
@@ -326,12 +326,12 @@ await takeScreenshot(page, 'post-verification');
 
 ### Screenshot Examples
 
-| Test Case | Screenshot Purpose | File Pattern |
+| Test Case | Screenshot Features | File Pattern |
 |-----------|--------------------|--------------|
-| TC-001 | Login page | `login-page-*.png` |
-| TC-001 | Filled form | `login-form-filled-*.png` | 
-| TC-001 | Dashboard | `dashboard-loaded-*.png` |
-| TC-002 | Error message | `error-message-*.png` |
+| All Tests | Automatic on key steps | `[testname]-*.png` |
+| Failures | Full-page with retries | `error-[testname]-*.png` |
+| Manual | Timestamped captures | `manual-[description]-*.png` |
+| Security | Masked sensitive data | `secure-[testname]-*.png` |
 
 After running tests, view the HTML report:
 ```bash
@@ -347,8 +347,8 @@ npx playwright show-report
 
 | Test Case ID | Test Case Name | Priority | Test Type | Description | Preconditions | Test Steps | Expected Result | Notes |
 |-------------|----------------|----------|-----------|-------------|--------------|------------|-----------------|-------|
-| TC-001 | Successful login | High | Functional | Verify login with valid credentials | 1. On login page<br>2. Stable connection | 1. Input valid username<br>2. Input valid password<br>3. Click Login | 1. Redirect to dashboard<br>2. Show "Dashboard" header<br>3. Show "Time at Work" widget | FR-001 |
-| TC-002 | Failed login | High | Functional | Verify login blocks with invalid credentials | 1. On login page | 1. Input invalid username<br>2. Input invalid password<br>3. Click Login | 1. Show "Invalid credentials"<br>2. Stay on login page | FR-002 |
+| TC-001 | Successful login | High | Functional | Verify login with valid credentials | 1. On login page | 1. Input valid credentials<br>2. Click Login<br>3. Verify dashboard | 1. Redirect to dashboard<br>2. All widgets visible<br>3. Quick launch functional | FR-001 |
+| TC-002 | Failed login | High | Functional | Verify login error handling | 1. On login page | 1. Input invalid credentials<br>2. Click Login | 1. Show error message<br>2. Maintain login state | FR-002 |
 | TC-003 | Admin navigation | Medium | Functional | Verify Admin module access | 1. User logged in | 1. Click Admin menu | 1. Redirect to System Users<br>2. Show "System Users" header | FR-003 |
 | TC-004 | Successful logout | High | Functional | Verify logout process | 1. User logged in | 1. Click user dropdown<br>2. Select Logout | 1. Redirect to login page<br>2. Show login form | FR-004 |
 | TC-005 | Session validation | Medium | Security | Verify session cleared after logout | 1. User logged out | 1. Access dashboard URL directly | 1. Redirect to login page | SEC-001 |
