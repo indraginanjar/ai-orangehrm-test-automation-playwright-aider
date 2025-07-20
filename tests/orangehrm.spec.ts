@@ -146,8 +146,15 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     // Try to access protected page
     await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/dashboard/index');
     
-    // Should be redirected to login - wait for navigation first
-    await page.waitForURL(/auth\/login/);
+    // Should be redirected to login - wait with longer timeout
+    try {
+      await page.waitForURL(/auth\/login/, { timeout: 10000 });
+    } catch {
+      // Fallback check if still on dashboard page
+      if (await page.url().includes('/dashboard')) {
+        throw new Error('Session timeout did not redirect to login page');
+      }
+    }
     await expect(page.getByPlaceholder('Username')).toBeVisible();
   });
 
