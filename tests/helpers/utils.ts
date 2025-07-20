@@ -46,6 +46,9 @@ export async function navigateToDirectory(page: Page): Promise<void> {
   await page.locator('span:has-text("Directory")').click({ timeout: 15000 });
   await page.waitForURL(/directory/, { timeout: 30000 });
   
+  // Debug: Log current page state
+  console.log('Navigated to directory page:', page.url());
+  
   // Wait for either table or no data message
   const table = page.locator(SELECTORS.DIRECTORY.TABLE);
   const noData = page.locator(SELECTORS.DIRECTORY.NO_DATA);
@@ -59,4 +62,11 @@ export async function navigateToDirectory(page: Page): Promise<void> {
   await expect(page.locator('.oxd-topbar-header-breadcrumb-module'))
     .toContainText('Directory');
   await page.waitForLoadState('networkidle');
+  
+  // Debug: Log final verification state
+  console.log('Table visible:', await table.isVisible());
+  console.log('No data message visible:', await noData.isVisible());
+  if (await table.isVisible()) {
+    console.log('Table row count:', await table.locator(SELECTORS.DIRECTORY.TABLE_ROW).count());
+  }
 }

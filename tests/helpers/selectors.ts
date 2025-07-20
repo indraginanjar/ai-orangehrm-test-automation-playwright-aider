@@ -15,12 +15,12 @@ export const SELECTORS = {
     ]
   },
   DIRECTORY: {
-    TABLE: '.orangehrm-container, .oxd-table, [role="table"]',
+    TABLE: '.orangehrm-container, .oxd-table, [role="table"], .oxd-table-card-container',
     SEARCH_INPUT: ':nth-match(.oxd-input, 1)',
     SEARCH_BUTTON: 'button:has-text("Search")',
     RESET_BUTTON: 'button:has-text("Reset")',
-    TABLE_ROW: '.oxd-table-card, .oxd-table-row, [role="row"]:not([role="heading"])',
-    NO_DATA: '.oxd-table-cell:has-text("No Records Found"), .oxd-table-cell:has-text("No data")'
+    TABLE_ROW: '.oxd-table-card, .oxd-table-row, [role="row"]:not([role="heading"]), .oxd-table-body > div',
+    NO_DATA: '.oxd-table-cell:has-text("No Records Found"), .oxd-table-cell:has-text("No data"), .oxd-table-card:has-text("No Records Found")'
   },
   USER: {
     DROPDOWN: '.oxd-userdropdown-tab',
