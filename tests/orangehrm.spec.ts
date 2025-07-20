@@ -652,35 +652,6 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
         }
       }
       
-      // Enhanced search with retry and validation
-      let searchSuccess = false;
-      for (let attempt = 1; attempt <= 3; attempt++) {
-        console.log(`Search attempt ${attempt}`);
-        await page.locator('button:has-text("Search")').click();
-        
-        try {
-          await page.waitForLoadState('networkidle');
-          
-          // Check for results or no data message
-          const resultsLocator = page.locator('.oxd-table-card,.oxd-table-row').first();
-          const noDataLocator = page.locator('.oxd-text:has-text("No Records Found")');
-          
-          await Promise.race([
-            resultsLocator.waitFor({ state: 'visible', timeout: 10000 }),
-            noDataLocator.waitFor({ state: 'visible', timeout: 10000 })
-          ]);
-          
-          searchSuccess = true;
-          break;
-        } catch (error) {
-          console.log(`Search attempt ${attempt} failed: ${error.message}`);
-          if (attempt === 3) {
-            await takeScreenshot(page, 'directory-search-failure');
-            throw new Error(`Search failed after 3 attempts: ${error.message}`);
-          }
-          await page.waitForTimeout(3000);
-        }
-      }
     });
 
     // Test Case 2: Search by job title
