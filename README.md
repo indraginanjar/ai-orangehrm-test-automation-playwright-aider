@@ -484,12 +484,35 @@ npx playwright show-report
 - Responsive behavior
 
 ### Test Data
-- Valid: Admin/admin123  
-- Invalid: wrong/wrong  
-- Boundary:  
-  - Empty strings  
-  - 100-character strings  
-  - Uppercase credentials  
+
+**Authentication:**
+```typescript
+{
+  valid: { username: 'Admin', password: 'admin123' },
+  invalid: { username: 'wrong', password: 'wrong' },
+  empty: { username: '', password: '' },
+  caseSensitive: { username: 'ADMIN', password: 'ADMIN123' },
+  longInput: {
+    username: 'a'.repeat(100),
+    password: 'b'.repeat(100)
+  }
+}
+```
+
+**Directory:**
+```typescript
+{
+  searchName: 'Odis',
+  jobTitle: 'Chief Executive Officer',
+  location: 'Texas R&D',
+  expectedRows: 1
+}
+```
+
+**Base URL:**
+```typescript
+'https://opensource-demo.orangehrmlive.com/web/index.php'
+```
 
 ### Test Environment
 - **Browsers**: Chromium, Firefox, WebKit  
