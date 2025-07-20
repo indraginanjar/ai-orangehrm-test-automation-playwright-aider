@@ -103,24 +103,46 @@ After running tests, view the HTML report:
 npx playwright show-report
 ```
 
-## Test Structure
+## Test Case Documentation
 
-The test suite includes:
+### Test Cases
 
-1. **Functional Tests**
-   - Successful login
-   - Failed login
-   - Navigation
-   - Logout
+| Test Case ID | Test Case Name | Priority | Test Type | Description | Preconditions | Test Steps | Expected Result | Notes |
+|-------------|----------------|----------|-----------|-------------|--------------|------------|-----------------|-------|
+| TC-001 | Successful login | High | Functional | Verify login with valid credentials | 1. On login page<br>2. Stable connection | 1. Input valid username<br>2. Input valid password<br>3. Click Login | 1. Redirect to dashboard<br>2. Show "Dashboard" header<br>3. Show "Time at Work" widget | FR-001 |
+| TC-002 | Failed login | High | Functional | Verify login blocks with invalid credentials | 1. On login page | 1. Input invalid username<br>2. Input invalid password<br>3. Click Login | 1. Show "Invalid credentials"<br>2. Stay on login page | FR-002 |
+| TC-003 | Admin navigation | Medium | Functional | Verify Admin module access | 1. User logged in | 1. Click Admin menu | 1. Redirect to System Users<br>2. Show "System Users" header | FR-003 |
+| TC-004 | Successful logout | High | Functional | Verify logout process | 1. User logged in | 1. Click user dropdown<br>2. Select Logout | 1. Redirect to login page<br>2. Show login form | FR-004 |
+| TC-005 | Session validation | Medium | Security | Verify session cleared after logout | 1. User logged out | 1. Access dashboard URL directly | 1. Redirect to login page | SEC-001 |
+| TC-006 | Empty validation | High | Boundary | Verify empty input validation | 1. On login page | 1. Leave username empty<br>2. Leave password empty<br>3. Click Login | 1. Show "Required" on both fields | UI-001 |
+| TC-007 | Case sensitivity | Medium | Security | Verify password case sensitivity | 1. On login page | 1. Input uppercase username<br>2. Input uppercase password<br>3. Click Login | 1. Show "Invalid credentials" | SEC-002 |
+| TC-008 | Long input | Low | Boundary | Verify long input handling | 1. On login page | 1. Input 100-char username<br>2. Input 100-char password<br>3. Click Login | 1. System doesn't crash<br>2. Show appropriate error | UI-002 |
+| TC-009 | Session timeout | High | Security | Verify inactivity timeout | 1. User logged in | 1. Wait 5 minutes<br>2. Access Admin menu | 1. Redirect to login page | SEC-003 |
+| TC-010 | Concurrent login | Medium | Security | Verify multiple sessions | 1. - | 1. Login session 1<br>2. Login session 2 | 1. Both sessions active (demo app allows) | - |
 
-2. **Boundary Tests**
-   - Empty credentials
-   - Long input handling
-   - Case sensitivity
+### Test Attributes
+1. **Test Case ID**: Unique TC-XXX identifier  
+2. **Priority**: High/Medium/Low business impact  
+3. **Test Type**: Functional/Boundary/Security  
+4. **Traceability**: Linked to requirement IDs (FR-XXX, SEC-XXX, UI-XXX)
 
-3. **Security Tests**
-   - Session timeout
-   - Concurrent login
+### Requirement Coverage
+- **Functional**: FR-001 to FR-005  
+- **Security**: SEC-001 to SEC-003  
+- **UI**: UI-001 to UI-002  
+
+### Test Data
+- Valid: Admin/admin123  
+- Invalid: wrong/wrong  
+- Boundary:  
+  - Empty strings  
+  - 100-character strings  
+  - Uppercase credentials  
+
+### Test Environment
+- **Browsers**: Chromium, Firefox, WebKit  
+- **Base URL**: https://opensource-demo.orangehrmlive.com  
+- **Tools**: Playwright v1.40+  
 
 ## Configuration
 
