@@ -90,12 +90,15 @@ This repository was created to demonstrate:
 
 ## Development Approach
 
-1. **AI Pair Programming**:
-   - Used aider for real-time code suggestions
-   - DeepSeek model helped with:
-     - Test case generation
-     - Playwright API usage
-     - Error troubleshooting
+1. **AI-Assisted Development**:
+   - Used DeepSeek model for:
+     - Test case generation and refinement
+     - Playwright API guidance
+     - Code reviews and optimizations
+   - Human-led development with AI support:
+     - Manual test implementation
+     - Architectural decisions
+     - Final verification
 
 2. **Iterative Development**:
    - Started with basic login tests
