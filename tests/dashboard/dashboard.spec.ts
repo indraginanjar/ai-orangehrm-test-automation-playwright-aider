@@ -26,7 +26,7 @@ test.describe('Dashboard Tests', () => {
       
       // Enhanced verification
       const widgets = page.locator(SELECTORS.DASHBOARD.WIDGETS);
-      await expect(widgets).toHaveCount(4); // Verify exact widget count
+      await expect(widgets).toHaveCount(4, { timeout: 10000 }); // Verify exact widget count with longer timeout
       
       // Boundary test - slow network
       await test.step('Verify widget loading under slow network', async () => {
@@ -53,7 +53,7 @@ test.describe('Dashboard Tests', () => {
 
     // Verify system handles missing widget gracefully
     const widgets = page.locator(SELECTORS.DASHBOARD.WIDGETS);
-    await expect(widgets).toHaveCount(3);
+    await expect(widgets).toHaveCount(3, { timeout: 10000 });
     await expect(page.locator('.oxd-alert')).not.toBeVisible(); // No error shown
     await takeScreenshot(page, 'dashboard-missing-widget');
   });

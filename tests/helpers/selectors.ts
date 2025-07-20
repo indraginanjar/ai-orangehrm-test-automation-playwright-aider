@@ -6,7 +6,7 @@ export const SELECTORS = {
   },
   DASHBOARD: {
     HEADER: '.oxd-topbar-header-breadcrumb-module',
-    WIDGETS: '.orangehrm-dashboard-grid',
+    WIDGETS: '.orangehrm-dashboard-widget',
     WIDGET_NAMES: [
       'Time at Work',
       'My Actions', 
