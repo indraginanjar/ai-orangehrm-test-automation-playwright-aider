@@ -9,9 +9,13 @@ export const SELECTORS = {
     WIDGETS: '.orangehrm-dashboard-widget',
     WIDGET_NAMES: [
       'Time at Work',
-      'My Actions', 
+      'My Actions',
       'Quick Launch',
-      'Employees on Leave Today'
+      'Employees on Leave Today',
+      'Buzz Latest Posts',
+      'Employees on Leave Soon',
+      'Employee Distribution by Sub Unit',
+      'Employee Distribution by Location'
     ]
   },
   DIRECTORY: {
