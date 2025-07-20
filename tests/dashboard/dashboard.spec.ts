@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { login, takeScreenshot } from '../../helpers/utils';
+import { login, takeScreenshot } from '../helpers/utils';
 import { SELECTORS } from '../../helpers/selectors';
 
 test.describe('Dashboard Tests', () => {

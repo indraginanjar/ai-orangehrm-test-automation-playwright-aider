@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { login, navigateToDirectory, takeScreenshot } from '../../helpers/utils';
+import { login, navigateToDirectory, takeScreenshot } from '../helpers/utils';
 import { TEST_DATA, SELECTORS } from '../../helpers/test-data';
 
 test.describe('Directory Tests', () => {

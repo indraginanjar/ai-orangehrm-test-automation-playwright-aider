@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import fs from 'fs';
 // Selector constants
 const SELECTORS = {
   LOGIN: {

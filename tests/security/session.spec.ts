@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { login } from '../../helpers/utils';
+import { login } from '../helpers/utils';
 import { BASE_URL } from '../../helpers/test-data';
 
 test.describe('Session Security Tests', () => {
