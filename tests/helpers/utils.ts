@@ -44,5 +44,8 @@ export async function verifyDashboardWidgets(page: Page): Promise<void> {
 export async function navigateToDirectory(page: Page): Promise<void> {
   await page.locator('span:has-text("Directory")').click();
   await page.waitForURL(/directory/);
-  await page.waitForSelector(SELECTORS.DIRECTORY.TABLE, { state: 'visible' });
+  await page.waitForSelector(SELECTORS.DIRECTORY.TABLE, { 
+    state: 'visible',
+    timeout: 30000 
+  });
 }

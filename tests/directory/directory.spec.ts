@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { login, navigateToDirectory, takeScreenshot } from '../helpers/utils';
-import { TEST_DATA, SELECTORS } from '../helpers/test-data';
+import { TEST_DATA } from '../helpers/test-data';
+import { SELECTORS } from '../helpers/selectors';
 
 test.describe('Directory Tests', () => {
   test.beforeEach(async ({ page }) => {

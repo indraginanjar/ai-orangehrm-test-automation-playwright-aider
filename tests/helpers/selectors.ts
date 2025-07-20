@@ -6,7 +6,7 @@ export const SELECTORS = {
   },
   DASHBOARD: {
     HEADER: '.oxd-topbar-header-breadcrumb-module',
-    WIDGETS: '.orangehrm-dashboard-grid', // Primary selector
+    WIDGETS: '.orangehrm-dashboard-grid',
     WIDGET_NAMES: [
       'Time at Work',
       'My Actions', 
@@ -16,7 +16,9 @@ export const SELECTORS = {
   },
   DIRECTORY: {
     TABLE: '.orangehrm-container',
-    SEARCH_INPUT: ':nth-match(.oxd-input, 1)'
+    SEARCH_INPUT: ':nth-match(.oxd-input, 1)',
+    SEARCH_BUTTON: 'button:has-text("Search")',
+    RESET_BUTTON: 'button:has-text("Reset")'
   },
   USER: {
     DROPDOWN: '.oxd-userdropdown-tab',
@@ -26,4 +28,4 @@ export const SELECTORS = {
     MENU: 'span:has-text("Admin")',
     HEADER: 'h5:has-text("System Users")'
   }
-};
+} as const; // Added 'as const' for type safety
