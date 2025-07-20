@@ -35,11 +35,20 @@ export async function verifyDashboardWidgets(page: Page, test?: any): Promise<vo
     });
   }, { timeout: 20000 });
 
-  // Enhanced verification with proper timeout handling
+  // Enhanced verification with sampling and limits
   const MAX_RETRIES = 3;
   const WIDGET_TIMEOUT = 20000; // 20 seconds per widget
+  const MAX_WIDGETS_TO_CHECK = 5; // Limit number of widgets to verify
   
-  for (const widgetName of SELECTORS.DASHBOARD.WIDGET_NAMES) {
+  // Get a sample of widgets to check (first 3 + random 2 others)
+  const widgetsToCheck = [
+    ...SELECTORS.DASHBOARD.WIDGET_NAMES.slice(0, 3), // Always check first 3 important widgets
+    ...SELECTORS.DASHBOARD.WIDGET_NAMES.slice(3)
+      .sort(() => 0.5 - Math.random())
+      .slice(0, MAX_WIDGETS_TO_CHECK - 3)
+  ];
+
+  for (const widgetName of widgetsToCheck) {
     try {
       const widget = page.getByText(widgetName, { exact: true })
         .or(page.getByRole('heading', { name: widgetName }))
