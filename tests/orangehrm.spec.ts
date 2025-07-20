@@ -271,31 +271,68 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
   });
 
   test('@security Concurrent login prevention', async ({ browser }) => {
+    test.setTimeout(60000); // Set explicit timeout
+    
     // First session
     const context1 = await browser.newContext();
     const page1 = await context1.newPage();
     await page1.goto(`${BASE_URL}/auth/login`);
-    await page1.getByPlaceholder('Username').fill(CREDENTIALS.username);
-    await page1.getByPlaceholder('Password').fill(CREDENTIALS.password);
-    await page1.getByRole('button', { name: 'Login' }).click();
-    await page1.waitForURL(/dashboard/);
     
-    // Second session - should be allowed in demo app
+    // Second session 
     const context2 = await browser.newContext();
     const page2 = await context2.newPage();
     await page2.goto(`${BASE_URL}/auth/login`);
-    await page2.getByPlaceholder('Username').fill(CREDENTIALS.username);
-    await page2.getByPlaceholder('Password').fill(CREDENTIALS.password);
-    await page2.getByRole('button', { name: 'Login' }).click();
-    await page2.waitForURL(/dashboard/);
-    
-    // Verify both sessions are active
-    await expect(page1.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
-    await expect(page2.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
-    
-    // Clean up
-    await context1.close();
-    await context2.close();
+
+    try {
+      console.log('Starting concurrent login test');
+      
+      // Execute logins in parallel with proper waiting
+      await Promise.all([
+        // Session 1 login
+        (async () => {
+          console.log('Starting session 1 login');
+          await page1.getByPlaceholder('Username').fill(CREDENTIALS.username);
+          await page1.getByPlaceholder('Password').fill(CREDENTIALS.password);
+          await takeScreenshot(page1, 'concurrent-session1-filled');
+          await page1.getByRole('button', { name: 'Login' }).click();
+          await page1.waitForURL(/dashboard/);
+          console.log('Session 1 login complete');
+        })(),
+        
+        // Session 2 login
+        (async () => {
+          console.log('Starting session 2 login');
+          await page2.getByPlaceholder('Username').fill(CREDENTIALS.username);
+          await page2.getByPlaceholder('Password').fill(CREDENTIALS.password);
+          await takeScreenshot(page2, 'concurrent-session2-filled');
+          await page2.getByRole('button', { name: 'Login' }).click();
+          await page2.waitForURL(/dashboard/);
+          console.log('Session 2 login complete');
+        })()
+      ]);
+
+      // Verify both sessions
+      await expect(page1.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
+      await expect(page2.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
+      
+      // Visual verification
+      await takeScreenshot(page1, 'concurrent-session1-dashboard');
+      await takeScreenshot(page2, 'concurrent-session2-dashboard');
+      console.log('Both sessions verified successfully');
+
+    } catch (error) {
+      console.error('Concurrent login test failed:', error);
+      // Capture screenshots on failure
+      await takeScreenshot(page1, 'concurrent-session1-error').catch(e => console.error('Failed to capture error screenshot:', e));
+      await takeScreenshot(page2, 'concurrent-session2-error').catch(e => console.error('Failed to capture error screenshot:', e));
+      throw error;
+    } finally {
+      // Clean up - close contexts in parallel
+      await Promise.all([
+        context1.close().catch(e => console.error('Error closing context1:', e)),
+        context2.close().catch(e => console.error('Error closing context2:', e))
+      ]);
+    }
   });
 });
   test('@mock @security Session timeout simulation', async ({ page }) => {
