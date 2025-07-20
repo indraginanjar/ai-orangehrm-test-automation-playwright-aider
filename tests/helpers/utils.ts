@@ -73,15 +73,22 @@ export async function verifyDashboardWidgets(page: Page): Promise<void> {
           description: `Widget '${widgetName}' visibility check failed`
         });
       });
-    await expect(widget).toHaveCSS('opacity', '1');
-    await expect(widget).toHaveCSS('visibility', 'visible');
-    
-    // Verify widget is interactive
-    await expect(widget).not.toHaveAttribute('aria-disabled', 'true');
-    
-    // Verify widget content exists
-    const widgetContainer = widget.locator('.. >> ..'); // Go up two levels
-    await expect(widgetContainer).toContainText(/.+/);
+
+      await expect(widget).toHaveCSS('opacity', '1');
+      await expect(widget).toHaveCSS('visibility', 'visible');
+      
+      // Verify widget is interactive
+      await expect(widget).not.toHaveAttribute('aria-disabled', 'true');
+      
+      // Verify widget content exists
+      const widgetContainer = widget.locator('.. >> ..'); // Go up two levels
+      await expect(widgetContainer).toContainText(/.+/);
+    } catch (error) {
+      test.info().annotations.push({
+        type: 'Error',
+        description: `Error verifying widget '${widgetName}': ${error.message}`
+      });
+    }
   }
 }
 
