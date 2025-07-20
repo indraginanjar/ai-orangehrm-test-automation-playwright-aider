@@ -15,7 +15,7 @@ export default defineConfig({
   testDir: './tests',
   /* Filter tests by tags */
   grep: process.env.TEST_TYPE ? new RegExp(process.env.TEST_TYPE) : undefined,
-  grepInvert: null,
+  grepInvert: undefined,
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
