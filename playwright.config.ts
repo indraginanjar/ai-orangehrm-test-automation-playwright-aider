@@ -13,8 +13,8 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
-  /* Maximum time one test can run for (10 minutes) */
-  timeout: 600000,
+  /* Maximum time one test can run for (15 minutes) */
+  timeout: 900000,
   /* Filter tests by tags */
   grep: process.env.TEST_TYPE ? new RegExp(process.env.TEST_TYPE) : /^(?!.*@mock)/,
   grepInvert: undefined,

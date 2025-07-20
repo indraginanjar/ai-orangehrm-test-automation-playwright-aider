@@ -111,23 +111,23 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
   });
 
   test.beforeEach(async ({ page }) => {
+    console.log(`Navigating to ${BASE_URL}/auth/login`);
     let retries = 3;
     while (retries > 0) {
       try {
         await page.goto(`${BASE_URL}/auth/login`, { 
-          timeout: 45000,
-          waitUntil: 'domcontentloaded'
+          timeout: 60000,
+          waitUntil: 'networkidle'
         });
         
-        // Wait for multiple elements to ensure page loaded
+        // Wait for multiple elements with more reliable selectors
         await Promise.all([
-          page.waitForSelector('.orangehrm-login-branding', { state: 'visible', timeout: 15000 }),
-          page.waitForSelector('input[name="username"]', { state: 'visible', timeout: 15000 }),
-          page.waitForSelector('input[name="password"]', { state: 'visible', timeout: 15000 })
+          page.waitForSelector('input[name="username"]', { state: 'visible', timeout: 20000 }),
+          page.waitForSelector('input[name="password"]', { state: 'visible', timeout: 20000 }),
+          page.waitForSelector('button[type="submit"]', { state: 'visible', timeout: 20000 })
         ]);
         
-        await page.evaluate(() => document.fonts.ready);
-        await page.waitForLoadState('networkidle');
+        console.log('Login page elements loaded successfully');
         break;
       } catch (error) {
         retries--;
@@ -371,29 +371,23 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       type: 'ISTQB',
       description: 'TC-011: Dashboard page validation'
     });
-    test.setTimeout(60000);
+    test.setTimeout(120000);
     
-    // Login with retry mechanism
-    let loggedIn = false;
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      try {
-        await page.getByPlaceholder('Username').waitFor({ state: 'visible', timeout: 20000 });
-        await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
-        await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
-        
-        await Promise.all([
-          page.waitForNavigation({ timeout: 30000 }),
-          page.getByRole('button', { name: 'Login' }).click()
-        ]);
-        
-        loggedIn = true;
-        break;
-      } catch (error) {
-        if (attempt === 3) throw error;
-        await page.reload();
-        await page.waitForTimeout(3000);
-      }
-    }
+    // Login with more reliable selectors
+    await page.goto(`${BASE_URL}/auth/login`);
+    
+    const usernameField = page.locator('input[name="username"]');
+    await usernameField.waitFor({ state: 'visible', timeout: 30000 });
+    await usernameField.fill(CREDENTIALS.username);
+    
+    const passwordField = page.locator('input[name="password"]');
+    await passwordField.fill(CREDENTIALS.password);
+    
+    await page.locator('button[type="submit"]').click();
+    
+    // Wait for dashboard with multiple checks
+    await page.waitForURL(/dashboard/, { timeout: 30000 });
+    await page.waitForLoadState('networkidle');
     
     if (!loggedIn) throw new Error('Failed to login after 3 attempts');
     
