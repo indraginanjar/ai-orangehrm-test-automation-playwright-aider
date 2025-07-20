@@ -132,29 +132,21 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     await page.getByRole('button', { name: 'Login' }).click();
     await page.waitForURL(/dashboard/);
     
-    // Simulate timeout by directly accessing login API with expired session
-    await page.evaluate(async () => {
-      await fetch('/web/index.php/auth/validate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({_token: ''}) // Empty token to force logout
-      });
-    });
+    // Simulate inactivity by waiting longer than session timeout (demo app has 5 min timeout)
+    await page.waitForTimeout(310000); // 5 minutes 10 seconds
     
-    // Try to access protected page
-    await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/dashboard/index');
+    // Try to perform an action that requires authentication
+    await page.getByRole('link', { name: 'Admin' }).click();
     
-    // Should be redirected to login - wait with longer timeout
+    // Verify we're redirected to login page
     try {
       await page.waitForURL(/auth\/login/, { timeout: 10000 });
     } catch {
-      // Fallback check if still on dashboard page
-      if (await page.url().includes('/dashboard')) {
-        throw new Error('Session timeout did not redirect to login page');
-      }
+      // If still not redirected, force refresh
+      await page.reload();
+      await page.waitForURL(/auth\/login/, { timeout: 5000 });
     }
+    
     await expect(page.getByPlaceholder('Username')).toBeVisible();
   });
 
@@ -186,3 +178,20 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     await context2.close();
   });
 });
+  test('@mock @security Session timeout simulation', async ({ page }) => {
+    // Login first
+    await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
+    await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
+    await page.getByRole('button', { name: 'Login' }).click();
+    await page.waitForURL(/dashboard/);
+    
+    // Mock session timeout by clearing cookies
+    await page.context().clearCookies();
+    
+    // Try to perform an action
+    await page.getByRole('link', { name: 'Admin' }).click();
+    
+    // Should be redirected to login
+    await page.waitForURL(/auth\/login/);
+    await expect(page.getByPlaceholder('Username')).toBeVisible();
+  });

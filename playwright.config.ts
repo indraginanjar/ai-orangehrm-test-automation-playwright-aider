@@ -14,7 +14,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests',
   /* Filter tests by tags */
-  grep: process.env.TEST_TYPE ? new RegExp(process.env.TEST_TYPE) : undefined,
+  grep: process.env.TEST_TYPE ? new RegExp(process.env.TEST_TYPE) : /^(?!.*@mock)/,
   grepInvert: undefined,
   /* Run tests in files in parallel */
   fullyParallel: true,
