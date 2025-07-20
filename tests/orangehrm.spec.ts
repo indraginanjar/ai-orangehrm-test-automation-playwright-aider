@@ -1,6 +1,4 @@
 import { test, expect, Page } from '@playwright/test';
-import fs from 'fs';
-
 // Selector constants
 const SELECTORS = {
   LOGIN: {
@@ -15,6 +13,14 @@ const SELECTORS = {
   DIRECTORY: {
     TABLE: '.orangehrm-container',
     SEARCH_INPUT: ':nth-match(.oxd-input, 1)'
+  },
+  USER: {
+    DROPDOWN: '.oxd-userdropdown-tab',
+    LOGOUT: 'a:has-text("Logout")'
+  },
+  ADMIN: {
+    MENU: 'span:has-text("Admin")',
+    HEADER: 'h5:has-text("System Users")'
   }
 };
 
@@ -109,11 +115,11 @@ function isScreenshotValid(screenshotBuffer) {
 const BASE_URL = 'https://opensource-demo.orangehrmlive.com/web/index.php';
 
 // Helper function for Directory tests
-async function loginAndNavigateToDirectory(page) {
+async function loginAndNavigateToDirectory(page: Page) {
   // Login
   await page.goto(`${BASE_URL}/auth/login`);
-  await page.locator('input[name="username"]').fill(CREDENTIALS.username);
-  await page.locator('input[name="password"]').fill(CREDENTIALS.password);
+  await page.locator('input[name="username"]').fill(TEST_DATA.credentials.valid.username);
+  await page.locator('input[name="password"]').fill(TEST_DATA.credentials.valid.password);
   await page.locator('button[type="submit"]').click();
 
   // Wait for dashboard
@@ -206,7 +212,6 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
   });
 
   test('Successful login with valid credentials', async ({ page }) => {
-    test.setTimeout(60000);
     
     try {
       // Ensure form is ready
@@ -274,10 +279,10 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     await page.getByRole('button', { name: 'Login' }).click();
 
     // Logout
-    await page.locator('.oxd-userdropdown-tab').waitFor();
-    await page.locator('.oxd-userdropdown-tab').click();
-    await page.locator('a:has-text("Logout")').waitFor();
-    await page.locator('a:has-text("Logout")').click();
+    await page.locator(SELECTORS.USER.DROPDOWN).waitFor();
+    await page.locator(SELECTORS.USER.DROPDOWN).click();
+    await page.locator(SELECTORS.USER.LOGOUT).waitFor();
+    await page.locator(SELECTORS.USER.LOGOUT).click();
 
     // Verify back to login page
     await page.waitForURL(/auth\/login/);
@@ -685,7 +690,11 @@ async function waitForDirectoryPageReady(page) {
   await page.waitForLoadState('networkidle');
 }
 
-async function searchDirectory(page, criteria) {
+async function searchDirectory(page: Page, criteria: {
+  name?: string;
+  jobTitle?: string;
+  location?: string;
+}) {
   if (criteria.name) {
     await page.locator(':nth-match(.oxd-input, 1)').fill(criteria.name);
   }
