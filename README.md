@@ -65,11 +65,17 @@ npm install
 ```bash
 npx playwright install
 ```
+```powershell
+npx playwright install
+```
 
 ## Running Tests
 
 ### Run all tests in Chromium:
 ```bash
+npx playwright test tests/orangehrm.spec.ts --project chromium
+```
+```powershell
 npx playwright test tests/orangehrm.spec.ts --project chromium
 ```
 
@@ -84,6 +90,16 @@ TEST_TYPE=@boundary npx playwright test
 # Run mock tests (faster alternative for CI/local development)
 TEST_TYPE=@mock npx playwright test
 ```
+```powershell
+# Run only security tests
+$env:TEST_TYPE="@security"; npx playwright test
+
+# Run boundary tests
+$env:TEST_TYPE="@boundary"; npx playwright test
+
+# Run mock tests
+$env:TEST_TYPE="@mock"; npx playwright test
+```
 
 ### Run in other browsers:
 ```bash
@@ -93,9 +109,19 @@ npx playwright test --project firefox
 # WebKit (Safari)
 npx playwright test --project webkit
 ```
+```powershell
+# Firefox
+npx playwright test --project firefox
+
+# WebKit (Safari)
+npx playwright test --project webkit
+```
 
 ### Run with UI mode:
 ```bash
+npx playwright test --ui
+```
+```powershell
 npx playwright test --ui
 ```
 
@@ -125,6 +151,22 @@ npx playwright test --grep "@security Session timeout after inactivity" --timeou
 # Run all tests except the long timeout test
 npx playwright test --grep-invert "@security Session timeout after inactivity"
 ```
+```powershell
+# Run only mock tests
+$env:TEST_TYPE="@mock"; npx playwright test
+
+# Run all tests except mocks
+npx playwright test
+
+# Run both real and mock tests
+npx playwright test --grep-invert nothing
+
+# Run only real session timeout test
+npx playwright test --grep "@security Session timeout after inactivity" --timeout=400000
+
+# Run all tests except long timeout test
+npx playwright test --grep-invert "@security Session timeout after inactivity"
+```
 
 Mock tests are automatically excluded by default (see playwright.config.ts). They are useful for:
 - Local development
@@ -135,6 +177,9 @@ Mock tests are automatically excluded by default (see playwright.config.ts). The
 
 After running tests, view the HTML report:
 ```bash
+npx playwright show-report
+```
+```powershell
 npx playwright show-report
 ```
 
