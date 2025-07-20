@@ -162,7 +162,10 @@ For faster test execution during development, we provide mock versions of certai
 Usage:
 ```bash
 # Run only mock tests
-TEST_TYPE=@mock npx playwright test
+$env:TEST_TYPE = "@mock"; npx playwright test
+# Or:
+# $env:TEST_TYPE='@mock'
+# npx playwright test
 
 # Run all tests except mocks (default)
 npx playwright test
@@ -173,7 +176,7 @@ npx playwright test --grep-invert nothing
 # Run only real session timeout test (scheduled nightly)
 npx playwright test --grep "@security Session timeout after inactivity" --timeout=400000
 
-# Run all tests except the long timeout test
+# Run all tests except the long timeout test  
 npx playwright test --grep-invert "@security Session timeout after inactivity"
 ```
 ```powershell
