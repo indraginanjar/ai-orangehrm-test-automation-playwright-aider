@@ -211,7 +211,21 @@ The test suite automatically captures:
 - Manual screenshots at key test points
 
 ### Video Management
-Videos are automatically recorded for all tests in 1280x720 resolution. To manage disk space:
+Videos are automatically recorded for all tests (default 640x360 resolution). To manage disk space or change resolution:
+
+1. **Change Video Resolution**:
+```bash
+# Set custom resolution
+VIDEO_WIDTH=800 VIDEO_HEIGHT=450 npx playwright test
+
+# Use very low resolution for CI
+VIDEO_WIDTH=320 VIDEO_HEIGHT=180 npx playwright test
+
+# Use HD resolution when needed  
+VIDEO_WIDTH=1280 VIDEO_HEIGHT=720 npx playwright test
+```
+
+2. **Default Resolution**: 640x360 (good balance of quality and size)
 
 1. **Automatic Cleanup**:
 ```bash

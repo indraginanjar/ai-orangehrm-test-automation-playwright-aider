@@ -48,7 +48,10 @@ export default defineConfig({
     },
     video: {
       mode: 'on',
-      size: { width: 1280, height: 720 }
+      size: { 
+        width: process.env.VIDEO_WIDTH ? parseInt(process.env.VIDEO_WIDTH) : 640,
+        height: process.env.VIDEO_HEIGHT ? parseInt(process.env.VIDEO_HEIGHT) : 360 
+      }
     },
     /* Viewport settings */
     viewport: { width: 1280, height: 720 }, // Fixed viewport
