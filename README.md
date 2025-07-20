@@ -237,9 +237,28 @@ npx playwright show-report
 4. **Traceability**: Linked to requirement IDs (FR-XXX, SEC-XXX, UI-XXX)
 
 ### Requirement Coverage
-- **Functional**: FR-001 to FR-005  
-- **Security**: SEC-001 to SEC-003  
-- **UI**: UI-001 to UI-002  
+
+#### Functional Requirements (FR)
+
+| ID | Description | Test Validation | Test Case |
+|----|-------------|-----------------|-----------|
+| FR-001 | Successful Login | <ul><li>Redirects to dashboard</li><li>Shows dashboard components</li></ul> | TC-001 |
+| FR-002 | Failed Login Handling | <ul><li>Shows "Invalid credentials"</li><li>Maintains login page</li></ul> | TC-002 |
+| FR-003 | Admin Module Access | <ul><li>Redirects to System Users</li><li>Shows appropriate header</li></ul> | TC-003 |
+| FR-004 | Logout Functionality | <ul><li>Returns to login page</li><li>Clears session</li></ul> | TC-004 |
+| FR-005 | Post-Logout Session Validation | <ul><li>Redirects to login when accessing protected pages</li></ul> | TC-005 |
+
+**Key Characteristics:**
+- Direct traceability between requirements and test cases
+- Covers core authentication workflow (login → access → logout)
+- Validates both happy path and error scenarios
+- Follows ISTQB standard numbering
+
+#### Security Requirements (SEC)
+- SEC-001 to SEC-003  
+
+#### UI Requirements (UI)  
+- UI-001 to UI-002  
 
 ### Test Data
 - Valid: Admin/admin123  
