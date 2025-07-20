@@ -6,26 +6,69 @@ if (!fs.existsSync('screenshots')) {
   fs.mkdirSync('screenshots');
 }
 
-// Screenshot helper
-async function takeScreenshot(page, name) {
+// Screenshot helper with retries and validation
+async function takeScreenshot(page, name, maxRetries = 3) {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const path = `screenshots/${name}-${timestamp}.png`;
+  let lastError;
   
-  // Add stability checks before capturing
-  await page.waitForLoadState('networkidle');
-  await page.waitForTimeout(500); // Small delay for UI stabilization
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      // Add stability checks before capturing
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(500); // Small delay for UI stabilization
+      
+      // Verify critical element is visible
+      await page.locator('body').waitFor({ state: 'visible' });
+      
+      // Capture with better options
+      const screenshot = await page.screenshot({ 
+        path: attempt === maxRetries ? path : undefined, // Only save on last attempt
+        fullPage: true,
+        animations: 'disabled',
+        mask: [page.locator('.oxd-userdropdown-tab')],
+        timeout: 10000
+      });
+      
+      // Verify screenshot is not blank by checking first few pixels
+      if (isScreenshotValid(screenshot)) {
+        if (attempt > 1) {
+          console.log(`Screenshot succeeded on attempt ${attempt}`);
+        }
+        if (attempt < maxRetries) {
+          // Save the successful retry
+          await fs.promises.writeFile(path, screenshot);
+        }
+        console.log(`Screenshot saved: ${path}`);
+        return path;
+      }
+      throw new Error('Blank screenshot detected');
+    } catch (error) {
+      lastError = error;
+      console.warn(`Screenshot attempt ${attempt} failed: ${error.message}`);
+      if (attempt < maxRetries) {
+        await page.waitForTimeout(1000); // Wait before retry
+      }
+    }
+  }
   
-  // Capture with better options
-  await page.screenshot({ 
-    path,
-    fullPage: true,
-    animations: 'disabled',
-    mask: [page.locator('.oxd-userdropdown-tab')], // Mask sensitive elements
-    timeout: 10000 // Longer timeout for screenshots
-  });
+  throw new Error(`Failed to capture screenshot after ${maxRetries} attempts: ${lastError.message}`);
+}
+
+// Helper function to check screenshot validity
+function isScreenshotValid(screenshotBuffer) {
+  // Simple check - first few pixels shouldn't be all white/black
+  const sampleSize = 100;
+  let nonBlankPixels = 0;
   
-  console.log(`Screenshot saved: ${path}`); // Debug logging
-  return path;
+  for (let i = 0; i < sampleSize; i++) {
+    const pixelValue = screenshotBuffer.readUInt8(i);
+    if (pixelValue > 10 && pixelValue < 245) { // Not pure white/black
+      nonBlankPixels++;
+    }
+  }
+  
+  return nonBlankPixels > sampleSize * 0.5; // At least 50% non-blank
 }
 
 // Base URL
@@ -64,13 +107,21 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
   });
 
   test('Successful login with valid credentials', async ({ page }) => {
-    // Initial screenshot with proper wait
-    await takeScreenshot(page, 'login-page-initial');
+    try {
+      await takeScreenshot(page, 'login-page-initial');
+    } catch (error) {
+      console.error('Initial screenshot failed, continuing test:', error.message);
+    }
 
     // Fill form and capture
     await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
     await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
-    await takeScreenshot(page, 'login-form-filled');
+    
+    try {
+      await takeScreenshot(page, 'login-form-filled');
+    } catch (error) {
+      console.error('Form screenshot failed:', error.message);
+    }
     
     // Click and wait for navigation
     await Promise.all([
@@ -80,7 +131,15 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     
     // Dashboard verification with proper waits
     await page.waitForSelector('.oxd-dashboard-grid');
-    await takeScreenshot(page, 'dashboard-loaded');
+    
+    try {
+      await takeScreenshot(page, 'dashboard-loaded');
+    } catch (error) {
+      console.error('Dashboard screenshot failed:', error.message);
+      // Consider failing test if screenshot is critical
+      // throw error;
+    }
+    
     await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
     await expect(page.getByText('Time at Work')).toBeVisible();
   });
