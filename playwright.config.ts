@@ -36,8 +36,8 @@ export default defineConfig({
     // baseURL: 'http://localhost:3000',
 
     /* Timeout settings */
-    actionTimeout: 10000, // Each action timeout
-    navigationTimeout: 15000, // Navigation timeout
+    actionTimeout: 30000, // Each action timeout
+    navigationTimeout: 30000, // Navigation timeout
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',

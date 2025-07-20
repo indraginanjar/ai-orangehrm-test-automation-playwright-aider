@@ -99,11 +99,39 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
   * - Security requirements (SEC-001 to SEC-003)
   * - UI requirements (UI-001 to UI-002)
   */
+  test.beforeAll(async ({ browser }) => {
+    const page = await browser.newPage();
+    try {
+      await page.goto('https://opensource-demo.orangehrmlive.com', { timeout: 30000 });
+    } catch (error) {
+      throw new Error('OrangeHRM demo site is not reachable');
+    } finally {
+      await page.close();
+    }
+  });
+
   test.beforeEach(async ({ page }) => {
-    await page.goto(`${BASE_URL}/auth/login`);
-    await page.waitForSelector('.orangehrm-login-branding', { state: 'visible' });
-    await page.evaluate(() => document.fonts.ready); // Wait for fonts
-    await page.waitForLoadState('networkidle');
+    // Tambahkan retry logic
+    let retries = 3;
+    while (retries > 0) {
+      try {
+        await page.goto(`${BASE_URL}/auth/login`, { 
+          timeout: 30000,
+          waitUntil: 'domcontentloaded'
+        });
+        await page.waitForSelector('.orangehrm-login-branding', { 
+          state: 'visible',
+          timeout: 15000 
+        });
+        await page.evaluate(() => document.fonts.ready); // Wait for fonts
+        await page.waitForLoadState('networkidle');
+        break;
+      } catch (error) {
+        retries--;
+        if (retries === 0) throw error;
+        await page.waitForTimeout(5000); // Tunggu 5 detik sebelum retry
+      }
+    }
   });
 
   test('Successful login with valid credentials', async ({ page }) => {
@@ -154,6 +182,7 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
 
   test('Navigation to Admin module', async ({ page }) => {
     // Login first
+    await page.getByPlaceholder('Username').waitFor({ state: 'visible', timeout: 15000 });
     await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
     await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
     await page.getByRole('button', { name: 'Login' }).click();
