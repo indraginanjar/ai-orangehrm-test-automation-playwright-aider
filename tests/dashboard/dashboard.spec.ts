@@ -58,11 +58,10 @@ test.describe('Dashboard Tests', () => {
         await context.setOffline(false);
         await context.route('**', route => route.continue());
         
-        // Add delay to simulate slow network
-        await context.route('**', route => {
-          return new Promise(resolve => 
-            setTimeout(() => resolve(route.continue()), 500
-          );
+        // Simulate slow network with throttling
+        await context.route('**', async route => {
+          await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay
+          await route.continue();
         });
         
         await verifyDashboardWidgets(page, test, { timeout: 90000 }); // 90s timeout for slow network
