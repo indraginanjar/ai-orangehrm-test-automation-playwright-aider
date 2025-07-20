@@ -1,46 +1,50 @@
 # AI-Assisted OrangeHRM Test Automation with Playwright
 
 This project demonstrates the creation of automated tests for OrangeHRM using Playwright, developed with the assistance of:
-- **Aider** as the AI pair programming tool  
-- **DeepSeek** as the LLM model  
-- Following ISTQB testing standards  
+
+- **Aider** as the AI pair programming tool
+- **DeepSeek** as the LLM model
+- Following ISTQB testing standards
 
 ## Key Features
 
-- **AI-Assisted Development**: 
-  - Entire test suite co-developed with AI using aider  
-  - DeepSeek model provided intelligent test case suggestions  
-  - Automated code reviews and optimizations  
+### AI-Assisted Development
 
-- **Comprehensive Test Coverage**:
-  - Authentication (login/logout) workflows  
-  - Navigation testing  
-  - Boundary value analysis  
-  - Security validation  
+- Entire test suite co-developed with AI using aider
+- DeepSeek model provided intelligent test case suggestions
+- Automated code reviews and optimizations
 
-- **ISTQB-Aligned**:
-  - Standardized test case documentation  
-  - Traceability matrix  
-  - Proper test categorization  
+### Comprehensive Test Coverage
+
+- Authentication (login/logout) workflows
+- Navigation testing
+- Boundary value analysis
+- Security validation
+
+### ISTQB-Aligned
+
+- Standardized test case documentation
+- Traceability matrix
+- Proper test categorization
 
 ## Development Approach
 
 1. **AI Pair Programming**:
-   - Used aider for real-time code suggestions  
+   - Used aider for real-time code suggestions
    - DeepSeek model helped with:
-     - Test case generation  
-     - Playwright API usage  
-     - Error troubleshooting  
+     - Test case generation
+     - Playwright API usage
+     - Error troubleshooting
 
 2. **Iterative Development**:
-   - Started with basic login tests  
-   - Expanded to full test suite  
-   - Continuously refined with AI feedback  
+   - Started with basic login tests
+   - Expanded to full test suite
+   - Continuously refined with AI feedback
 
 3. **Quality Assurance**:
-   - AI-assisted code reviews  
-   - Automated test execution  
-   - Continuous improvements  
+   - AI-assisted code reviews
+   - Automated test execution
+   - Continuous improvements
 
 ## Prerequisites
 
@@ -51,35 +55,42 @@ This project demonstrates the creation of automated tests for OrangeHRM using Pl
 ## Installation
 
 1. Clone the repository:
-```bash
-git clone [your-repository-url]
-cd orangehrm_test_aider_playwright
-```
+
+   ```bash
+   git clone [your-repository-url]
+   cd orangehrm_test_aider_playwright
+   ```
 
 2. Install dependencies:
-```bash
-npm install
-```
+
+   ```bash
+   npm install
+   ```
 
 3. Install Playwright browsers:
-```bash
-npx playwright install
-```
-```powershell
-npx playwright install
-```
+
+   ```bash
+   npx playwright install
+   ```
+
+   ```powershell
+   npx playwright install
+   ```
 
 ## Running Tests
 
-### Run all tests in Chromium:
+### Run all tests in Chromium
+
 ```bash
 npx playwright test tests/orangehrm.spec.ts --project chromium
 ```
+
 ```powershell
 npx playwright test tests/orangehrm.spec.ts --project chromium
 ```
 
-### Run specific test categories:
+### Run specific test categories
+
 ```bash
 # Run only security tests
 TEST_TYPE=@security npx playwright test
@@ -90,6 +101,7 @@ TEST_TYPE=@boundary npx playwright test
 # Run mock tests (faster alternative for CI/local development)
 TEST_TYPE=@mock npx playwright test
 ```
+
 ```powershell
 # Run only security tests
 $env:TEST_TYPE="@security"; npx playwright test
@@ -101,7 +113,8 @@ $env:TEST_TYPE="@boundary"; npx playwright test
 $env:TEST_TYPE="@mock"; npx playwright test
 ```
 
-### Run in other browsers:
+### Run in other browsers
+
 ```bash
 # Firefox
 npx playwright test --project firefox
@@ -109,6 +122,7 @@ npx playwright test --project firefox
 # WebKit (Safari)
 npx playwright test --project webkit
 ```
+
 ```powershell
 # Firefox
 npx playwright test --project firefox
@@ -117,10 +131,12 @@ npx playwright test --project firefox
 npx playwright test --project webkit
 ```
 
-### Run with UI mode:
+### Run with UI mode
+
 ```bash
 npx playwright test --ui
 ```
+
 ```powershell
 npx playwright test --ui
 ```
