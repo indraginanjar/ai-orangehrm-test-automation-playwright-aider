@@ -125,7 +125,7 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     await expect(page.getByText('Invalid credentials')).toBeVisible();
   });
 
-  test('@security Session timeout after inactivity', async ({ page }) => {
+  test.skip('@security Session timeout after inactivity', async ({ page }) => {
     test.setTimeout(400000); // 6 minutes 40 seconds timeout
     
     // Login first

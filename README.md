@@ -152,6 +152,8 @@ npx playwright test --ui
 
 ## Mock Testing
 
+**Note:** The real session timeout test (`@security Session timeout after inactivity`) is currently disabled due to instability in the test environment. The mock version (`@mock @security Session timeout simulation`) remains available for testing the session timeout logic.
+
 For faster test execution during development, we provide mock versions of certain tests:
 
 1. **Session Timeout Simulation** (`@mock @security`):
@@ -225,7 +227,7 @@ npx playwright show-report
 | TC-006 | Empty validation | High | Boundary | Verify empty input validation | 1. On login page | 1. Leave username empty<br>2. Leave password empty<br>3. Click Login | 1. Show "Required" on both fields | UI-001 |
 | TC-007 | Case sensitivity | Medium | Security | Verify password case sensitivity | 1. On login page | 1. Input uppercase username<br>2. Input uppercase password<br>3. Click Login | 1. Show "Invalid credentials" | SEC-002 |
 | TC-008 | Long input | Low | Boundary | Verify long input handling | 1. On login page | 1. Input 100-char username<br>2. Input 100-char password<br>3. Click Login | 1. System doesn't crash<br>2. Show appropriate error | UI-002 |
-| TC-009 | Session timeout | High | Security | Verify inactivity timeout | 1. User logged in | 1. Wait 5 minutes<br>2. Access Admin menu | 1. Redirect to login page | SEC-003 |
+| TC-009 | Session timeout | High | Security | Verify inactivity timeout | 1. User logged in | 1. Wait 5 minutes<br>2. Access Admin menu | 1. Redirect to login page | SEC-003<br>**Currently disabled** |
 | TC-010 | Concurrent login | Medium | Security | Verify multiple sessions | 1. - | 1. Login session 1<br>2. Login session 2 | 1. Both sessions active (demo app allows) | - |
 
 ### Test Attributes
