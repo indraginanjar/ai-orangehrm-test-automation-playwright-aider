@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { login, takeScreenshot } from '../helpers/utils';
-import { SELECTORS } from '../helpers/selectors';
+import { login, takeScreenshot } from '../../helpers/utils';
+import { SELECTORS } from '../../helpers/selectors';
 
 test.describe('Dashboard Tests', () => {
   test.beforeEach(async ({ page }) => {

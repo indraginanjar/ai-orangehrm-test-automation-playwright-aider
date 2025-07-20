@@ -9,6 +9,9 @@
 **/trace/
 .aider*
 
+# Helpers
+tests/helpers/
+
 # Node
 node_modules/
 .env
