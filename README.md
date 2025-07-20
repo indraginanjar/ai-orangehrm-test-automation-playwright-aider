@@ -288,8 +288,61 @@ npx playwright show-report
 | Credential Strength | TC-007 | Case sensitivity check |
 | Session Lifetime | TC-009/Mock | Timeout simulation |
 
-#### UI Requirements (UI)  
-- UI-001 to UI-002  
+#### UI Requirements (UI)
+
+| ID | Description | Test Validation | Test Case |
+|----|-------------|-----------------|-----------|
+| UI-001 | Empty Field Validation | <ul><li>Shows "Required" message</li><li>Highlights empty fields</li><li>Prevents form submission</li></ul> | TC-006 |
+| UI-002 | Long Input Handling | <ul><li>Handles long inputs without UI breakage</li><li>Shows appropriate error</li><li>Maintains form functionality</li></ul> | TC-008 |
+
+**Key UI Characteristics:**
+1. **Form Validation**:
+   - Clear visual feedback (UI-001)
+   - Consistent error messaging
+
+2. **Input Handling**:
+   - Graceful handling of edge cases (UI-002)
+   - Prevention of UI/UX breakage
+
+3. **User Experience**:
+   - Immediate feedback for validation errors
+   - Protection against malformed input
+
+**Implementation Notes:**
+- UI tests verify both:
+  - Functional behavior (error messages)
+  - Visual presentation (element visibility/styling)
+- Uses boundary testing approach
+- Validates responsive design elements
+
+**Traceability Matrix**:
+| UI Concern | Test Case | Verification Method |
+|------------|-----------|---------------------|
+| Form Validation | TC-006 | Empty field detection |
+| Input Handling | TC-008 | Long string submission |
+
+**Test Details**:
+1. **UI-001 Test Flow**:
+   - Leave both fields empty
+   - Click login
+   - Verify:
+     - Two "Required" messages appear
+     - Form doesn't submit
+     - Fields remain editable
+
+2. **UI-002 Test Flow**:
+   - Enter 100-character strings
+   - Click login
+   - Verify:
+     - No UI distortion
+     - System responds appropriately
+     - Form remains usable
+
+**Visual Elements Verified**:
+- Error message styling (color, position)
+- Field highlighting
+- Form layout stability
+- Responsive behavior
 
 ### Test Data
 - Valid: Admin/admin123  
