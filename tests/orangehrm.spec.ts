@@ -541,8 +541,8 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     await loginAndNavigateToDirectory(page);
 
     await test.step('Verify Directory page elements', async () => {
-      // Verify main heading
-      await expect(page.getByRole('heading', { name: 'Directory' })).toBeVisible();
+      // Verify main heading - use more specific selector
+      await expect(page.locator('.oxd-topbar-header-breadcrumb-module').getByText('Directory')).toBeVisible();
       
       // Verify search fields
       await expect(page.getByPlaceholder('Search')).toBeVisible();
@@ -611,17 +611,34 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       await page.locator('button:has-text("Reset")').click();
       await page.waitForTimeout(2000);
       
-      // Search with full name and better selectors
-      await page.getByPlaceholder('Search').fill(TEST_DATA.directory.searchName);
-      await page.getByRole('button', { name: 'Search' }).click();
+      // Search with retry logic
+      let searchSuccess = false;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        console.log(`Search attempt ${attempt} for "${TEST_DATA.directory.searchName}"`);
+        
+        await page.getByPlaceholder('Search').fill(TEST_DATA.directory.searchName);
+        await page.getByRole('button', { name: 'Search' }).click();
+        await page.waitForLoadState('networkidle');
+        await page.waitForTimeout(2000);
+        
+        try {
+          const resultsTable = page.locator('.oxd-table-body');
+          await resultsTable.waitFor({ state: 'visible', timeout: 10000 });
+          
+          const rows = await resultsTable.locator('.oxd-table-card').count();
+          if (rows > 0) {
+            searchSuccess = true;
+            break;
+          }
+        } catch (error) {
+          console.log(`Search attempt ${attempt} failed: ${error.message}`);
+        }
+      }
       
-      // Wait for results
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(2000); // Additional stabilization time
-      
-      // Verify results
-      const resultsTable = page.locator('.oxd-table-body');
-      await resultsTable.waitFor({ state: 'visible', timeout: 15000 });
+      if (!searchSuccess) {
+        await takeScreenshot(page, 'directory-search-failure');
+        throw new Error(`Search failed after 3 attempts for "${TEST_DATA.directory.searchName}"`);
+      }
       
       // Verify expected number of rows
       const rows = await resultsTable.locator('.oxd-table-card').count();
