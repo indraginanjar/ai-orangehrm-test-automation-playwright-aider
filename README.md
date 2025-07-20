@@ -483,36 +483,62 @@ npx playwright show-report
 - Form layout stability
 - Responsive behavior
 
-### Test Data
+### Test Data Structure
 
-**Authentication:**
+The test data is centrally managed in `tests/helpers/test-data.ts` with the following structure:
+
 ```typescript
-{
-  valid: { username: 'Admin', password: 'admin123' },
-  invalid: { username: 'wrong', password: 'wrong' },
-  empty: { username: '', password: '' },
-  caseSensitive: { username: 'ADMIN', password: 'ADMIN123' },
-  longInput: {
-    username: 'a'.repeat(100),
-    password: 'b'.repeat(100)
+export const BASE_URL = 'https://opensource-demo.orangehrmlive.com/web/index.php';
+
+export const TEST_DATA = {
+  credentials: {
+    valid: { username: 'Admin', password: 'admin123' },
+    invalid: { username: 'wrong', password: 'wrong' },
+    empty: { username: '', password: '' },
+    caseSensitive: { username: 'ADMIN', password: 'ADMIN123' },
+    longInput: {
+      username: 'a'.repeat(100),
+      password: 'b'.repeat(100)
+    }
+  },
+  directory: {
+    searchName: 'Odis',
+    jobTitle: 'Chief Executive Officer', 
+    location: 'Texas R&D',
+    expectedRows: 1
   }
-}
+};
+
+// Legacy aliases for backward compatibility
+export const CREDENTIALS = TEST_DATA.credentials.valid;
+export const INVALID_CREDENTIALS = TEST_DATA.credentials.invalid;
 ```
 
-**Directory:**
+**Key Features:**
+1. **Centralized Management**: All test data is defined in one place
+2. **Type Safety**: Strongly typed structure
+3. **Categories**:
+   - `credentials`: Authentication test data
+   - `directory`: Directory module test data
+4. **Special Cases**:
+   - Empty credentials
+   - Case-sensitive variants  
+   - Long input boundary values
+5. **Legacy Support**: Backward compatible aliases
+
+**Usage Examples**:
 ```typescript
-{
-  searchName: 'Odis',
-  jobTitle: 'Chief Executive Officer',
-  location: 'Texas R&D',
-  expectedRows: 1
-}
+// Using TEST_DATA
+await page.fill('#username', TEST_DATA.credentials.valid.username);
+
+// Using legacy aliases  
+await page.fill('#username', CREDENTIALS.username);
 ```
 
-**Base URL:**
-```typescript
-'https://opensource-demo.orangehrmlive.com/web/index.php'
-```
+**Best Practices**:
+- Always reference test data through these constants
+- Add new test data categories here rather than scattering through tests
+- Use the appropriate data variant for each test case
 
 ### Test Environment
 - **Browsers**: Chromium, Firefox, WebKit  
