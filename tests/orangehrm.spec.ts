@@ -653,7 +653,6 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       }
       
       // Enhanced search with retry and validation
-      // Perform search with retries
       let searchSuccess = false;
       for (let attempt = 1; attempt <= 3; attempt++) {
         console.log(`Search attempt ${attempt}`);
@@ -663,7 +662,7 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
           await page.waitForLoadState('networkidle');
           
           // Check for results or no data message
-          const resultsLocator = page.locator('.oxd-table-card').first();
+          const resultsLocator = page.locator('.oxd-table-card,.oxd-table-row').first();
           const noDataLocator = page.locator('.oxd-text:has-text("No Records Found")');
           
           await Promise.race([
