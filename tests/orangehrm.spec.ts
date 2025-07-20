@@ -149,6 +149,7 @@ async function loginAndNavigateToDirectory(page: Page) {
 
 // Import test data
 import { TEST_DATA, CREDENTIALS, INVALID_CREDENTIALS } from './helpers/test-data';
+const { caseSensitive, longInput } = TEST_DATA.credentials;
 
 test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
   /*
@@ -300,16 +301,16 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
   });
 
   test('@security Case sensitive password validation', async ({ page }) => {
-    await page.getByPlaceholder('Username').fill(TEST_DATA.caseSensitive.username);
-    await page.getByPlaceholder('Password').fill(TEST_DATA.caseSensitive.password);
+    await page.getByPlaceholder('Username').fill(caseSensitive.username);
+    await page.getByPlaceholder('Password').fill(caseSensitive.password);
     await page.getByRole('button', { name: 'Login' }).click();
 
     await expect(page.getByText('Invalid credentials')).toBeVisible();
   });
 
   test('@boundary Long input handling', async ({ page }) => {
-    await page.getByPlaceholder('Username').fill(TEST_DATA.longInput.username);
-    await page.getByPlaceholder('Password').fill(TEST_DATA.longInput.password);
+    await page.getByPlaceholder('Username').fill(longInput.username);
+    await page.getByPlaceholder('Password').fill(longInput.password);
     await page.getByRole('button', { name: 'Login' }).click();
 
     // System should handle without crashing
@@ -574,11 +575,31 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       const firstRow = page.locator('.oxd-table-card').first();
       const noDataMessage = page.locator('.oxd-text:has-text("No Records Found")');
       
-      // Wait for either table row or no data message
-      await Promise.race([
-        firstRow.waitFor({ state: 'visible', timeout: 30000 }),
-        noDataMessage.waitFor({ state: 'visible', timeout: 30000 })
-      ]);
+      // Wait for directory page to fully load
+      await page.waitForLoadState('networkidle');
+      
+      // Try multiple selectors for table/data
+      const selectors = [
+        '.oxd-table-card',
+        '.oxd-table-row',
+        '.oxd-text:has-text("No Records Found")'
+      ];
+      
+      let found = false;
+      for (const selector of selectors) {
+        try {
+          await page.waitForSelector(selector, { state: 'visible', timeout: 15000 });
+          found = true;
+          break;
+        } catch (error) {
+          console.log(`Element not found with selector: ${selector}`);
+        }
+      }
+      
+      if (!found) {
+        await takeScreenshot(page, 'directory-no-data-found');
+        throw new Error('Could not find any directory data or no-data message');
+      }
     });
   });
 
@@ -597,12 +618,39 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       await page.locator('button:has-text("Reset")').click();
       await page.waitForTimeout(2000);
       
-      // Search with more reliable term and wait for results
-      await page.locator('.oxd-input').first().fill('Odis');
-      await page.locator('button:has-text("Search")').click();
+      // Search with retry logic
+      let searchSuccess = false;
+      const searchTerm = 'Odis';
       
-      // Wait for search to complete
-      await page.waitForLoadState('networkidle');
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        console.log(`Search attempt ${attempt} for "${searchTerm}"`);
+        
+        await page.locator('.oxd-input').first().fill(searchTerm);
+        await page.locator('button:has-text("Search")').click();
+        
+        try {
+          await page.waitForLoadState('networkidle');
+          
+          // Check for results or no data message
+          const resultsLocator = page.locator('.oxd-table-card,.oxd-table-row').first();
+          const noDataLocator = page.locator('.oxd-text:has-text("No Records Found")');
+          
+          await Promise.race([
+            resultsLocator.waitFor({ state: 'visible', timeout: 10000 }),
+            noDataLocator.waitFor({ state: 'visible', timeout: 10000 })
+          ]);
+          
+          searchSuccess = true;
+          break;
+        } catch (error) {
+          console.log(`Search attempt ${attempt} failed: ${error.message}`);
+          if (attempt === 3) {
+            await takeScreenshot(page, 'directory-search-failure');
+            throw new Error(`Search failed after 3 attempts: ${error.message}`);
+          }
+          await page.waitForTimeout(3000);
+        }
+      }
       
       // Enhanced search with retry and validation
       // Perform search with retries
