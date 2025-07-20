@@ -132,13 +132,22 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     await page.getByRole('button', { name: 'Login' }).click();
     await page.waitForURL(/dashboard/);
     
-    // Clear session storage to simulate timeout
-    await page.evaluate(() => window.sessionStorage.clear());
+    // Simulate timeout by directly accessing login API with expired session
+    await page.evaluate(async () => {
+      await fetch('/web/index.php/auth/validate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({_token: ''}) // Empty token to force logout
+      });
+    });
     
     // Try to access protected page
-    await page.reload();
+    await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/dashboard/index');
     
-    // Should be redirected to login
+    // Should be redirected to login - wait for navigation first
+    await page.waitForURL(/auth\/login/);
     await expect(page.getByPlaceholder('Username')).toBeVisible();
   });
 
