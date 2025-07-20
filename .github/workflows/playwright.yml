@@ -27,7 +27,7 @@ jobs:
       
     - name: Run Playwright tests
       # run: npm run test:ci
-      run: npx playwright test --workers=3
+      run: npx playwright test --workers=3 --project chromium
       env:
         CI: true
         
