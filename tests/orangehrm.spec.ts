@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 
+// Base URL
+const BASE_URL = 'https://opensource-demo.orangehrmlive.com/web/index.php';
+
 // Test data
 const CREDENTIALS = {
   username: 'Admin',
@@ -26,7 +29,7 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
   * - UI requirements (UI-001 to UI-002)
   */
   test.beforeEach(async ({ page }) => {
-    await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login');
+    await page.goto(`${BASE_URL}/auth/login`);
   });
 
   test('Successful login with valid credentials', async ({ page }) => {
@@ -94,7 +97,7 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     await page.locator('a:has-text("Logout")').click();
 
     // Try to access dashboard directly
-    await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/dashboard/index', { waitUntil: 'networkidle' });
+    await page.goto(`${BASE_URL}/dashboard/index`, { waitUntil: 'networkidle' });
     
     // Should be redirected back to login
     await page.waitForURL(/auth\/login/);
@@ -129,7 +132,7 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     test.setTimeout(400000); // 6 minutes 40 seconds timeout
     
     // Login first
-    await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login');
+    await page.goto(`${BASE_URL}/auth/login`);
     await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
     await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
     await page.getByRole('button', { name: 'Login' }).click();
@@ -143,7 +146,7 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     
     // Approach 1: Direct navigation check
     try {
-        await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/dashboard/index', {
+        await page.goto(`${BASE_URL}/dashboard/index`, {
             waitUntil: 'domcontentloaded',
             timeout: 10000
         });
@@ -171,7 +174,7 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     // First session
     const context1 = await browser.newContext();
     const page1 = await context1.newPage();
-    await page1.goto('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login');
+    await page1.goto(`${BASE_URL}/auth/login`);
     await page1.getByPlaceholder('Username').fill(CREDENTIALS.username);
     await page1.getByPlaceholder('Password').fill(CREDENTIALS.password);
     await page1.getByRole('button', { name: 'Login' }).click();
@@ -180,7 +183,7 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     // Second session - should be allowed in demo app
     const context2 = await browser.newContext();
     const page2 = await context2.newPage();
-    await page2.goto('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login');
+    await page2.goto(`${BASE_URL}/auth/login`);
     await page2.getByPlaceholder('Username').fill(CREDENTIALS.username);
     await page2.getByPlaceholder('Password').fill(CREDENTIALS.password);
     await page2.getByRole('button', { name: 'Login' }).click();
@@ -199,7 +202,7 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     test.setTimeout(30000);
     
     // Navigasi ke halaman login
-    await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login');
+    await page.goto(`${BASE_URL}/auth/login`);
     
     // Tunggu sampai elemen login muncul
     await page.getByPlaceholder('Username').waitFor({ state: 'visible' });
