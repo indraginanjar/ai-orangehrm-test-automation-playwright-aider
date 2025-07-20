@@ -104,13 +104,22 @@ TEST_TYPE=@mock npx playwright test
 
 ```powershell
 # Run only security tests
-$env:TEST_TYPE="@security"; npx playwright test
+$env:TEST_TYPE = "@security"; npx playwright test
+# Or alternative syntax:
+# $env:TEST_TYPE='@security'
+# npx playwright test
 
-# Run boundary tests
-$env:TEST_TYPE="@boundary"; npx playwright test
+# Run boundary tests  
+$env:TEST_TYPE = "@boundary"; npx playwright test
+# Or:
+# $env:TEST_TYPE='@boundary'
+# npx playwright test
 
 # Run mock tests
-$env:TEST_TYPE="@mock"; npx playwright test
+$env:TEST_TYPE = "@mock"; npx playwright test
+# Or:
+# $env:TEST_TYPE='@mock'
+# npx playwright test
 ```
 
 ### Run in other browsers
