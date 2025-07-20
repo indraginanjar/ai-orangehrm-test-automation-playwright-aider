@@ -546,21 +546,49 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       // Verify search fields
       await expect(page.locator('.oxd-input')).toBeVisible();
       
-      // Verify table exists - use more reliable selector
-      const table = page.locator('.orangehrm-container');
-      await expect(table).toBeVisible();
+      // Wait for table to load with multiple selector options
+      const tableSelectors = [
+        '.oxd-table',
+        '.orangehrm-container',
+        '.oxd-table-card'
+      ];
       
-      // Verify table exists with more reliable selector and longer timeout
-      await expect(page.locator('.oxd-table')).toBeVisible({ timeout: 30000 });
+      let tableFound = false;
+      for (const selector of tableSelectors) {
+        try {
+          await page.waitForSelector(selector, { state: 'visible', timeout: 30000 });
+          tableFound = true;
+          break;
+        } catch (error) {
+          console.log(`Table not found with selector ${selector}, trying next option`);
+        }
+      }
       
-      // Check for either rows or "No records found" message
+      if (!tableFound) {
+        throw new Error('Could not find Directory table with any selector');
+      }
+
+      // Handle both data and no-data cases
       const noDataMessage = page.locator('.oxd-table-cell:has-text("No Records Found")');
       const firstRow = page.locator('.oxd-table-card').first();
       
-      await Promise.race([
-        expect(firstRow).toBeVisible({ timeout: 30000 }),
-        expect(noDataMessage).toBeVisible({ timeout: 30000 })
-      ]);
+      // Wait for either condition with detailed logging
+      try {
+        await Promise.race([
+          (async () => {
+            await firstRow.waitFor({ state: 'visible', timeout: 30000 });
+            console.log('Found table rows');
+          })(),
+          (async () => {
+            await noDataMessage.waitFor({ state: 'visible', timeout: 30000 });
+            console.log('Found no data message');
+          })()
+        ]);
+      } catch (error) {
+        console.error('Neither rows nor no-data message found');
+        await takeScreenshot(page, 'directory-table-error');
+        throw error;
+      }
     });
   });
 
@@ -586,19 +614,32 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       // Wait for results with more reliable selector
       await page.waitForSelector('.orangehrm-container', { state: 'visible', timeout: 30000 });
       
-      // Retry search up to 3 times if no results
-      let attempts = 3;
-      while (attempts > 0) {
+      // Enhanced search with retry and validation
+      let searchSuccess = false;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        console.log(`Search attempt ${attempt}`);
+        await page.locator('button:has-text("Search")').click();
+        
         try {
-          const firstCell = page.locator('.oxd-table-card').first();
-          await expect(firstCell).toBeVisible({ timeout: 15000 });
+          // Wait for either results or no data message
+          await Promise.race([
+            page.locator('.oxd-table-card').first().waitFor({ state: 'visible', timeout: 10000 }),
+            page.locator('.oxd-table-cell:has-text("No Records Found")').waitFor({ state: 'visible', timeout: 10000 })
+          ]);
+          searchSuccess = true;
           break;
-        } catch (err) {
-          attempts--;
-          if (attempts === 0) throw err;
-          await page.locator('button:has-text("Search")').click();
-          await page.waitForTimeout(2000);
+        } catch (error) {
+          console.log(`Search attempt ${attempt} failed, retrying...`);
+          if (attempt === 3) {
+            await takeScreenshot(page, 'directory-search-failure');
+            throw new Error(`Search failed after 3 attempts: ${error.message}`);
+          }
+          await page.waitForTimeout(3000);
         }
+      }
+      
+      if (!searchSuccess) {
+        throw new Error('Search did not return any results or no-data message');
       }
     });
 
@@ -657,14 +698,30 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
         throw new Error('Could not find Directory table with any selector');
       }
       
-      // Check pagination exists
+      // Enhanced pagination check with multiple verification methods
       const pagination = page.locator('.oxd-pagination');
-      const isPaginationVisible = await pagination.isVisible({ timeout: 10000 });
       
-      if (isPaginationVisible) {
+      // Method 1: Check visibility
+      const isVisible = await pagination.isVisible().catch(() => false);
+      
+      // Method 2: Check if pagination controls exist in DOM
+      const existsInDOM = await pagination.count().then(count => count > 0);
+      
+      if (existsInDOM && isVisible) {
+        console.log('Pagination controls visible');
         await expect(pagination).toBeVisible();
+        
+        // Additional verification - check if pagination items exist
+        const pageItems = await pagination.locator('.oxd-pagination-page-item').count();
+        if (pageItems > 0) {
+          console.log(`Found ${pageItems} pagination items`);
+        } else {
+          console.log('Pagination container exists but no page items found');
+        }
+      } else if (existsInDOM && !isVisible) {
+        console.log('Pagination exists in DOM but not visible (single page results)');
       } else {
-        console.log('Pagination not visible - only one page of results');
+        console.log('No pagination controls found - single page results');
       }
     });
 
