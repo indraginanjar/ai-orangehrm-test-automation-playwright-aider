@@ -373,6 +373,11 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     });
     test.setTimeout(120000);
     
+    // Ensure we're logged out first
+    await page.goto(`${BASE_URL}/auth/logout`);
+    await page.waitForURL(/auth\/login/);
+    await expect(page.getByPlaceholder('Username')).toBeVisible();
+
     // Login with more reliable selectors
     await page.goto(`${BASE_URL}/auth/login`);
     
