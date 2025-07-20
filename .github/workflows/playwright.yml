@@ -26,7 +26,8 @@ jobs:
       run: npx playwright install --with-deps chromium
       
     - name: Run Playwright tests
-      run: npm run test:ci
+      # run: npm run test:ci
+      run: npx playwright test --workers=3
       env:
         CI: true
         
