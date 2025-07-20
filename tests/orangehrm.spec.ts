@@ -611,8 +611,33 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       await page.locator('.oxd-input').first().fill('Admin');
       await page.locator('button:has-text("Search")').click();
       
-      // Wait for results with more reliable selector
-      await page.waitForSelector('.orangehrm-container', { state: 'visible', timeout: 30000 });
+      // Enhanced search with retry and validation
+      let searchSuccess = false;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        console.log(`Search attempt ${attempt}`);
+        await page.locator('button:has-text("Search")').click();
+        
+        try {
+          // Wait for either results or no data message
+          await Promise.race([
+            page.locator('.oxd-table-card').first().waitFor({ state: 'visible', timeout: 10000 }),
+            page.locator('.oxd-table-cell:has-text("No Records Found")').waitFor({ state: 'visible', timeout: 10000 })
+          ]);
+          searchSuccess = true;
+          break;
+        } catch (error) {
+          console.log(`Search attempt ${attempt} failed, retrying...`);
+          if (attempt === 3) {
+            await takeScreenshot(page, 'directory-search-failure');
+            throw new Error(`Search failed after 3 attempts: ${error.message}`);
+          }
+          await page.waitForTimeout(3000);
+        }
+      }
+      
+      if (!searchSuccess) {
+        throw new Error('Search did not return any results or no-data message');
+      }
       
       // Enhanced search with retry and validation
       let searchSuccess = false;
