@@ -483,6 +483,54 @@ npx playwright show-report
 - Form layout stability
 - Responsive behavior
 
+### Selector Structure
+
+The selectors are centrally managed in `tests/helpers/selectors.ts` with this structure:
+
+```typescript
+export const SELECTORS = {
+  LOGIN: {
+    USERNAME: 'input[name="username"]',
+    PASSWORD: 'input[name="password"]',
+    SUBMIT: 'button[type="submit"]'
+  },
+  DASHBOARD: {
+    HEADER: '.oxd-topbar-header-breadcrumb-module',
+    WIDGETS: '.orangehrm-dashboard-widget',
+    WIDGET_NAMES: [
+      'Time at Work',
+      'My Actions',
+      // ... other widget names
+    ]
+  },
+  DIRECTORY: {
+    TABLE: '.orangehrm-container, .oxd-table',
+    SEARCH_INPUT: ':nth-match(.oxd-input, 1)',
+    NO_DATA: '.oxd-table-cell:has-text("No Records Found")'
+  },
+  // ... other selector groups
+} as const;
+```
+
+**Key Features:**
+1. **Organized by Page/Module**: Logical grouping (Login, Dashboard, Directory etc)
+2. **Multiple Selector Options**: Some elements have multiple selector options for resilience
+3. **Type Safety**: `as const` ensures type inference works correctly
+4. **Widget Names**: Dashboard widget names are explicitly listed for validation
+
+**Usage Examples:**
+```typescript
+// Using selectors
+await page.locator(SELECTORS.LOGIN.USERNAME).fill('admin');
+await page.locator(SELECTORS.DASHBOARD.WIDGETS).first().click();
+```
+
+**Best Practices:**
+- Always reference selectors through this central file
+- Add new selectors here rather than scattering through tests
+- Use the most specific selector needed for each element
+- Prefer stable attributes like `name` over CSS classes
+
 ### Test Data Structure
 
 The test data is centrally managed in `tests/helpers/test-data.ts` with the following structure:
