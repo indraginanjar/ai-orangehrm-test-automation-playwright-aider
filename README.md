@@ -1,4 +1,4 @@
-# AI-Assisted OrangeHRM Test Automation with Playwright
+# AI-Assisted OrangeHRM Test Automation with Playwright (using aider)
 
 This project demonstrates the creation of automated tests for OrangeHRM using Playwright, developed with the assistance of:
 
