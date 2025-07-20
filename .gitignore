@@ -1,14 +1,30 @@
 
 # Playwright
-node_modules/
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
+**/test-results/
+**/playwright-report/ 
+**/playwright/.cache/
+**/blob-report/
+**/screenshots/
+**/downloads/
+**/trace/
 .aider*
 
-# Screenshots
-/screenshots/
+# Node
+node_modules/
+.env
+*.log
 
-# Videos
-/test-results/**/*.webm
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
