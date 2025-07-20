@@ -555,15 +555,21 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       const table = page.locator('.oxd-table-body');
       const noDataMessage = page.getByText('No Records Found');
       
-      await Promise.race([
-        table.waitFor({ state: 'visible', timeout: 15000 }),
-        noDataMessage.waitFor({ state: 'visible', timeout: 15000 })
+      const result = await Promise.race([
+        table.waitFor({ state: 'visible', timeout: 15000 }).then(() => 'table'),
+        noDataMessage.waitFor({ state: 'visible', timeout: 15000 }).then(() => 'noData')
       ]);
+      
       const firstRow = page.locator('.oxd-table-card').first();
-      const noDataMessage = page.locator('.oxd-text:has-text("No Records Found")');
       
       // Wait for directory page to fully load
       await page.waitForLoadState('networkidle');
+      
+      if (result === 'noData') {
+        console.log('No records found message displayed');
+      } else {
+        console.log('Directory table displayed');
+      }
       
       // Try multiple selectors for table/data
       const selectors = [
