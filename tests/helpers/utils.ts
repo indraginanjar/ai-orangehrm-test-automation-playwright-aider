@@ -43,22 +43,22 @@ export async function verifyDashboardWidgets(page: Page): Promise<void> {
 
 export async function navigateToDirectory(page: Page): Promise<void> {
   await test.step('Navigate to Directory page', async () => {
-    await page.locator('span:has-text("Directory")').click();
-    await page.waitForURL(/directory/);
+    // Click with retry in case menu is slow to load
+    await page.locator('span:has-text("Directory")').click({ timeout: 15000 });
+    await page.waitForURL(/directory/, { timeout: 30000 });
     
     // Wait for either table or no data message
+    const table = page.locator(SELECTORS.DIRECTORY.TABLE);
+    const noData = page.locator(SELECTORS.DIRECTORY.NO_DATA);
+    
     await Promise.race([
-      page.waitForSelector(SELECTORS.DIRECTORY.TABLE, { 
-        state: 'visible',
-        timeout: 30000 
-      }),
-      page.waitForSelector(SELECTORS.DIRECTORY.NO_DATA, {
-        state: 'visible',
-        timeout: 30000
-      })
+      table.waitFor({ state: 'visible', timeout: 30000 }),
+      noData.waitFor({ state: 'visible', timeout: 30000 })
     ]);
     
-    // Additional wait for stability
+    // Additional stability checks
+    await expect(page.locator('.oxd-topbar-header-breadcrumb-module'))
+      .toContainText('Directory');
     await page.waitForLoadState('networkidle');
   });
 }

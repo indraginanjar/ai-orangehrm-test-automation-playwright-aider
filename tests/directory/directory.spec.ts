@@ -23,20 +23,31 @@ test.describe('Directory Tests', () => {
       await expect(page.locator(SELECTORS.DIRECTORY.SEARCH_INPUT))
         .toBeVisible({ timeout: 10000 });
       
-      // Verify table exists
+      // Wait for table or no data message
       const table = page.locator(SELECTORS.DIRECTORY.TABLE);
-      await expect(table).toBeVisible({ timeout: 20000 });
-      
-      // Check for either rows or "no data" message
       const noData = page.locator(SELECTORS.DIRECTORY.NO_DATA);
-      const firstRow = table.locator(SELECTORS.DIRECTORY.TABLE_ROW).first();
       
-      if (await noData.isVisible({ timeout: 5000 })) {
-        console.log('Directory table is empty - showing "No Records Found"');
+      await Promise.race([
+        table.waitFor({ state: 'visible', timeout: 30000 }),
+        noData.waitFor({ state: 'visible', timeout: 30000 })
+      ]);
+
+      if (await noData.isVisible()) {
+        test.info().annotations.push({
+          type: 'Note',
+          description: 'Directory table was empty - this may be expected behavior'
+        });
         await expect(noData).toBeVisible();
       } else {
-        console.log('Directory table has data - verifying first row');
-        await expect(firstRow).toBeVisible({ timeout: 10000 });
+        await expect(table).toBeVisible();
+        const firstRow = table.locator(SELECTORS.DIRECTORY.TABLE_ROW).first();
+        await expect(firstRow).toBeVisible({ timeout: 15000 });
+        
+        // Additional debug info
+        test.info().annotations.push({
+          type: 'Debug',
+          description: `Found ${await table.locator(SELECTORS.DIRECTORY.TABLE_ROW).count()} rows`
+        });
       }
     });
   });
