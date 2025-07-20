@@ -1,6 +1,11 @@
 # 🚀 AI-Powered Test Automation Showcase - OrangeHRM with Playwright
 
-[▶️ Watch Demo](#) | [💻 Quick Start](#installation) | [📋 Test Cases](#test-case-highlights)
+[![GitHub stars](https://img.shields.io/github/stars/indraginanjar/ai-orangehrm-test-automation-playwright-aider)](https://github.com/indraginanjar/ai-orangehrm-test-automation-playwright-aider/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/indraginanjar/ai-orangehrm-test-automation-playwright-aider)](https://github.com/indraginanjar/ai-orangehrm-test-automation-playwright-aider/network)
+[![GitHub issues](https://img.shields.io/github/issues/indraginanjar/ai-orangehrm-test-automation-playwright-aider)](https://github.com/indraginanjar/ai-orangehrm-test-automation-playwright-aider/issues)
+[![GitHub license](https://img.shields.io/github/license/indraginanjar/ai-orangehrm-test-automation-playwright-aider)](https://github.com/indraginanjar/ai-orangehrm-test-automation-playwright-aider/blob/master/LICENSE)
+
+[▶️ Watch Demo](#) | [💻 Quick Start](#installation) | [📋 Test Cases](#test-case-highlights) | [🐛 Report Issue](https://github.com/indraginanjar/ai-orangehrm-test-automation-playwright-aider/issues)
 
 **Key Features**:
 - ✅ 100% Authentication Test Coverage
@@ -113,8 +118,8 @@ This repository was created to demonstrate:
 1. Clone the repository:
 
    ```bash
-   git clone [your-repository-url]
-   cd orangehrm_test_aider_playwright
+   git clone https://github.com/indraginanjar/ai-orangehrm-test-automation-playwright-aider.git
+   cd ai-orangehrm-test-automation-playwright-aider
    ```
 
 2. Install dependencies:
@@ -524,6 +529,36 @@ This project successfully demonstrates:
 - The future of AI-augmented testing
 
 It serves as both a learning resource and proof-of-concept for AI-assisted test automation.
+
+## 🤝 Contributing
+
+Contributions are welcome! Here's how to get started:
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/your-feature`)
+3. Commit your changes (`git commit -m 'Add some feature'`)
+4. Push to the branch (`git push origin feature/your-feature`)
+5. Open a Pull Request
+
+For major changes, please open an issue first to discuss what you would like to change.
+
+## 💬 Support
+
+For questions or issues, please:
+- [Open an issue](https://github.com/indraginanjar/ai-orangehrm-test-automation-playwright-aider/issues)
+- Join our [Discussions](#) (coming soon)
+
+## About
+
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/indraginanjar/ai-orangehrm-test-automation-playwright-aider)
+
+AI-assisted Playwright test automation for OrangeHRM, developed with aider and DeepSeek, following ISTQB standards. Includes functional, security, and boundary tests with mock testing capabilities.
+
+**Key Features:**
+- 🚀 AI-pair-programmed test suite
+- 🔒 Comprehensive security testing
+- 📊 Detailed test documentation
+- 🎥 Automatic video recording
 
 ## License
 
