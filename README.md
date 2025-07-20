@@ -296,6 +296,7 @@ npx playwright show-report
 | TC-008 | Long input | Low | Boundary | Verify long input handling | 1. On login page | 1. Input 100-char username<br>2. Input 100-char password<br>3. Click Login | 1. System doesn't crash<br>2. Show appropriate error | UI-002 |
 | TC-009 | Session timeout | High | Security | Verify inactivity timeout | 1. User logged in | 1. Wait 5 minutes<br>2. Access Admin menu | 1. Redirect to login page | SEC-003<br>**Currently disabled** |
 | TC-010 | Concurrent login | Medium | Security | Verify multiple sessions | 1. - | 1. Login session 1<br>2. Login session 2 | 1. Both sessions active (demo app allows) | - |
+| TC-011 | Dashboard validation | High | Functional | Verify dashboard page components | 1. User logged in | 1. Navigate to dashboard<br>2. Check header<br>3. Verify widgets<br>4. Test quick launch | 1. Correct header shown<br>2. All widgets visible<br>3. Quick launch functional | FR-006 |
 
 ### Test Attributes
 1. **Test Case ID**: Unique TC-XXX identifier  
@@ -314,6 +315,7 @@ npx playwright show-report
 | FR-003 | Admin Module Access | <ul><li>Redirects to System Users</li><li>Shows appropriate header</li></ul> | TC-003 |
 | FR-004 | Logout Functionality | <ul><li>Returns to login page</li><li>Clears session</li></ul> | TC-004 |
 | FR-005 | Post-Logout Session Validation | <ul><li>Redirects to login when accessing protected pages</li></ul> | TC-005 |
+| FR-006 | Dashboard Display | <ul><li>Shows correct header</li><li>Displays all widgets</li><li>Quick launch functions work</li></ul> | TC-011 |
 
 **Key Characteristics:**
 - Direct traceability between requirements and test cases

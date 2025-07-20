@@ -335,6 +335,65 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     }
   });
 });
+  test('Dashboard page validation', async ({ page }) => {
+    test.info().annotations.push({
+      type: 'ISTQB',
+      description: 'TC-011: Dashboard page validation'
+    });
+
+    // Precondition: Login first
+    await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
+    await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
+    await page.getByRole('button', { name: 'Login' }).click();
+    
+    // Wait for dashboard to load
+    await page.waitForURL(/dashboard/);
+    await page.waitForSelector('.oxd-dashboard-grid');
+
+    // Test Case 1: Verify header section
+    await test.step('Verify dashboard header', async () => {
+      await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
+      await expect(page.locator('.oxd-topbar-header-breadcrumb')).toContainText('Dashboard');
+    });
+
+    // Test Case 2: Verify widgets
+    await test.step('Verify dashboard widgets', async () => {
+      const expectedWidgets = [
+        'Time at Work',
+        'My Actions',
+        'Quick Launch',
+        'Employees on Leave Today',
+        'Employee Distribution by Sub Unit',
+        'Employee Distribution by Location'
+      ];
+
+      for (const widget of expectedWidgets) {
+        await expect(page.getByText(widget)).toBeVisible();
+      }
+    });
+
+    // Test Case 3: Verify quick launch functionality
+    await test.step('Verify quick launch buttons', async () => {
+      const quickLaunchButtons = [
+        'Assign Leave',
+        'Leave List',
+        'Timesheets',
+        'Apply Leave',
+        'My Leave',
+        'My Timesheet'
+      ];
+
+      for (const buttonText of quickLaunchButtons) {
+        const button = page.locator(`.orangehrm-quick-launch >> text=${buttonText}`);
+        await expect(button).toBeVisible();
+        await expect(button).toBeEnabled();
+      }
+    });
+
+    // Post-test screenshot
+    await takeScreenshot(page, 'dashboard-validation');
+  });
+
   test('@mock @security Session timeout simulation', async ({ page }) => {
     test.setTimeout(30000);
     
