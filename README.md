@@ -89,6 +89,12 @@ npx playwright test
 
 # Run both real and mock tests
 npx playwright test --grep-invert nothing
+
+# Run only real session timeout test (scheduled nightly)
+npx playwright test --grep "@security Session timeout after inactivity" --timeout=400000
+
+# Run all tests except the long timeout test
+npx playwright test --grep-invert "@security Session timeout after inactivity"
 ```
 
 Mock tests are automatically excluded by default (see playwright.config.ts). They are useful for:
