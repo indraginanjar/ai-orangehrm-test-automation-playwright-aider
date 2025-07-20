@@ -188,10 +188,20 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
   });
 });
   test('@mock @security Session timeout simulation', async ({ page }) => {
+    test.setTimeout(30000); // Set timeout khusus 30 detik untuk test mock
+    
+    // Navigasi ke halaman login
+    await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login');
+    
+    // Tunggu sampai elemen login muncul
+    await page.getByPlaceholder('Username').waitFor({ state: 'visible' });
+    
     // Login first
     await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
     await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
     await page.getByRole('button', { name: 'Login' }).click();
+    
+    // Tunggu sampai dashboard muncul
     await page.waitForURL(/dashboard/);
     
     // Mock session timeout by clearing storage
