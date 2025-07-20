@@ -1,5 +1,39 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 import fs from 'fs';
+
+// Selector constants
+const SELECTORS = {
+  LOGIN: {
+    USERNAME: 'input[name="username"]',
+    PASSWORD: 'input[name="password"]',
+    SUBMIT: 'button[type="submit"]'
+  },
+  DASHBOARD: {
+    HEADER: '.oxd-topbar-header-breadcrumb-module',
+    WIDGETS: '.oxd-dashboard-grid'
+  },
+  DIRECTORY: {
+    TABLE: '.orangehrm-container',
+    SEARCH_INPUT: ':nth-match(.oxd-input, 1)'
+  }
+};
+
+// Type definitions for test data
+interface Credentials {
+  username: string;
+  password: string;
+}
+
+interface TestData {
+  empty: Credentials;
+  caseSensitive: Credentials;
+  longInput: Credentials;
+  directory: {
+    searchName: string;
+    jobTitle: string;
+    location: string;
+  };
+}
 
 // Ensure screenshots directory exists
 if (!fs.existsSync('screenshots')) {
@@ -7,7 +41,7 @@ if (!fs.existsSync('screenshots')) {
 }
 
 // Screenshot helper with retries and validation
-async function takeScreenshot(page, name, maxRetries = 3) {
+async function takeScreenshot(page: Page, name: string, maxRetries: number = 3): Promise<string> {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const path = `screenshots/${name}-${timestamp}.png`;
   let lastError;
@@ -107,20 +141,16 @@ async function loginAndNavigateToDirectory(page) {
 }
 
 // Test data
-const CREDENTIALS = {
-  username: 'Admin',
-  password: 'admin123'
-};
-const INVALID_CREDENTIALS = {
-  username: 'wrong',
-  password: 'wrong'
-};
-const TEST_DATA = {
-  empty: { username: '', password: '' },
-  caseSensitive: { username: 'ADMIN', password: 'ADMIN123' }, // Wrong case
-  longInput: { 
-    username: 'a'.repeat(100), 
-    password: 'b'.repeat(100)
+const TEST_DATA: TestData = {
+  credentials: {
+    valid: { username: 'Admin', password: 'admin123' },
+    invalid: { username: 'wrong', password: 'wrong' },
+    empty: { username: '', password: '' },
+    caseSensitive: { username: 'ADMIN', password: 'ADMIN123' },
+    longInput: {
+      username: 'a'.repeat(100),
+      password: 'b'.repeat(100)
+    }
   },
   directory: {
     searchName: 'Odis',
@@ -185,8 +215,8 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       await takeScreenshot(page, 'login-page-initial');
 
       // Fill form
-      await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
-      await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
+      await page.getByPlaceholder('Username').fill(TEST_DATA.credentials.valid.username);
+      await page.getByPlaceholder('Password').fill(TEST_DATA.credentials.valid.password);
       await takeScreenshot(page, 'login-form-filled');
 
       // Click login and wait for navigation
