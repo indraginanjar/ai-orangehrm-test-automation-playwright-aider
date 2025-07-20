@@ -545,7 +545,7 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     }
   });
 
-  test('Directory page navigation and basic validation', async ({ page }) => {
+  test('TC-012 Directory page basic validation', async ({ page }) => {
     test.info().annotations.push({
       type: 'ISTQB',
       description: 'TC-012: Directory page basic validation'
@@ -571,7 +571,7 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     });
   });
 
-  test('Directory search functionality validation', async ({ page }) => {
+  test('TC-013 Directory search functionality', async ({ page }) => {
     test.info().annotations.push({
       type: 'ISTQB', 
       description: 'TC-013: Directory search functionality'

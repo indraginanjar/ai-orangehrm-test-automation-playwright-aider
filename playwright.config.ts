@@ -16,7 +16,9 @@ export default defineConfig({
   /* Maximum time one test can run for (15 minutes) */
   timeout: 900000,
   /* Filter tests by tags */
-  grep: process.env.TEST_TYPE ? new RegExp(process.env.TEST_TYPE) : /^(?!.*@mock)/,
+  grep: process.env.TEST_TYPE ? 
+    new RegExp(process.env.TEST_TYPE, 'i') : // Case insensitive matching
+    /^(?!.*@mock)/,
   grepInvert: undefined,
   /* Run tests in files in parallel */
   fullyParallel: true,
