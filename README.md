@@ -203,7 +203,45 @@ Mock tests are automatically excluded by default (see playwright.config.ts). The
 - CI pipelines where test speed is critical
 - Debugging test logic without long waits
 
-## Viewing Reports
+## Screenshots and Reports
+
+The test suite automatically captures:
+- Screenshots on test failures
+- Videos of failed test runs
+- Manual screenshots at key test points
+
+### Viewing Results
+
+1. **HTML Report** (contains screenshots):
+```bash
+npx playwright show-report
+```
+
+2. **Screenshots Directory**:
+- Saved to `/screenshots` with timestamped filenames
+- Organized by test case and step
+- Includes both automatic and manual captures
+
+3. **Example Screenshot Usage**:
+```typescript
+// Before action
+await takeScreenshot(page, 'pre-action');
+
+// Perform test step
+await page.click('button');
+
+// After verification  
+await takeScreenshot(page, 'post-verification');
+```
+
+### Screenshot Examples
+
+| Test Case | Screenshot Purpose | File Pattern |
+|-----------|--------------------|--------------|
+| TC-001 | Login page | `login-page-*.png` |
+| TC-001 | Filled form | `login-form-filled-*.png` | 
+| TC-001 | Dashboard | `dashboard-loaded-*.png` |
+| TC-002 | Error message | `error-message-*.png` |
 
 After running tests, view the HTML report:
 ```bash

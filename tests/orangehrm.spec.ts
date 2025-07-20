@@ -1,4 +1,22 @@
 import { test, expect } from '@playwright/test';
+import fs from 'fs';
+
+// Ensure screenshots directory exists
+if (!fs.existsSync('screenshots')) {
+  fs.mkdirSync('screenshots');
+}
+
+// Screenshot helper
+async function takeScreenshot(page, name) {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const path = `screenshots/${name}-${timestamp}.png`;
+  await page.screenshot({ 
+    path,
+    fullPage: true,
+    animations: 'disabled' // Disable animations for consistent screenshots
+  });
+  return path;
+}
 
 // Base URL
 const BASE_URL = 'https://opensource-demo.orangehrmlive.com/web/index.php';
@@ -33,12 +51,18 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
   });
 
   test('Successful login with valid credentials', async ({ page }) => {
+    // Capture initial state
+    await takeScreenshot(page, 'login-page');
+
     // Fill login form
     await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
     await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
+    await takeScreenshot(page, 'login-form-filled');
+    
     await page.getByRole('button', { name: 'Login' }).click();
 
     // Verify dashboard appears after login
+    await takeScreenshot(page, 'dashboard-loaded');
     await page.waitForURL(/dashboard/);
     await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
     await expect(page.getByText('Time at Work')).toBeVisible();
