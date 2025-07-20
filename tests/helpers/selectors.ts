@@ -15,7 +15,10 @@ export const SELECTORS = {
       'Buzz Latest Posts',
       'Employees on Leave Soon',
       'Employee Distribution by Sub Unit',
-      'Employee Distribution by Location'
+      'Employee Distribution by Location',
+      'Latest Documents',
+      'Latest News',
+      'Performance Quick Feedback'
     ]
   },
   DIRECTORY: {

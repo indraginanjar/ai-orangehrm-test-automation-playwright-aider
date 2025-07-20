@@ -35,16 +35,35 @@ export async function verifyDashboardWidgets(page: Page): Promise<void> {
     });
   }, { timeout: 20000 });
 
-  // Enhanced verification for each widget
+  // Enhanced verification for each widget with retries
   for (const widgetName of SELECTORS.DASHBOARD.WIDGET_NAMES) {
     const widget = page.getByText(widgetName, { exact: true })
       .or(page.getByRole('heading', { name: widgetName }))
       .first();
     
-    await widget.scrollIntoViewIfNeeded();
+    // Try scrolling with retries
+    let retries = 3;
+    while (retries > 0) {
+      try {
+        await widget.scrollIntoViewIfNeeded({ timeout: 10000 });
+        break;
+      } catch (error) {
+        retries--;
+        if (retries === 0) throw error;
+        await page.waitForTimeout(1000);
+      }
+    }
     
-    // Comprehensive visibility check
-    await expect(widget).toBeVisible({ timeout: 15000 });
+    // Comprehensive visibility check with better error reporting
+    try {
+      await expect(widget).toBeVisible({ timeout: 15000 });
+    } catch (error) {
+      test.info().annotations.push({
+        type: 'Warning',
+        description: `Widget '${widgetName}' verification failed`
+      });
+      throw error;
+    }
     await expect(widget).toHaveCSS('opacity', '1');
     await expect(widget).toHaveCSS('visibility', 'visible');
     
