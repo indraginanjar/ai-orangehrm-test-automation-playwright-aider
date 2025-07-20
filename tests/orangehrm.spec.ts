@@ -512,7 +512,8 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
 
     // Test Case 1: Verify page elements
     await test.step('Verify Directory page elements', async () => {
-      await expect(page.getByRole('heading', { name: 'Directory' })).toBeVisible();
+      // Use more specific selector for the main heading
+      await expect(page.locator('.oxd-topbar-header-breadcrumb-module').getByText('Directory')).toBeVisible();
       await expect(page.locator('.oxd-input')).toHaveCount(3);
       await expect(page.locator('.oxd-table')).toBeVisible();
       await expect(page.locator('.orangehrm-paper-container')).toBeVisible();
@@ -533,9 +534,13 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       await page.locator(':nth-match(.oxd-input, 1)').fill(TEST_DATA.directory.searchName);
       await page.locator('button:has-text("Search")').click();
       
-      const nameCells = page.locator('.oxd-table-cell:has-text("Odis")');
+      // Wait for results to load
+      await page.waitForLoadState('networkidle');
+      
+      // More specific selector for the name cell
+      const nameCells = page.locator('.oxd-table-cell').filter({ hasText: 'Odis' });
       await expect(nameCells).toHaveCount(1);
-      await expect(nameCells.first()).toContainText('Odis Adalwin');
+      await expect(nameCells).toContainText('Odis Adalwin');
     });
 
     // Test Case 2: Search by job title
@@ -571,8 +576,13 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
 
     // Test Case 1: Verify pagination controls
     await test.step('Verify pagination controls visibility', async () => {
-      await expect(page.locator('.oxd-pagination')).toBeVisible();
-      await expect(page.locator('.oxd-pagination-page-item')).toHaveCountGreaterThan(1);
+      // Wait for table to load first
+      await page.locator('.oxd-table').waitFor();
+      
+      // Check pagination with more specific selector
+      const pagination = page.locator('.oxd-pagination');
+      await expect(pagination).toBeVisible({ timeout: 10000 });
+      await expect(pagination.locator('.oxd-pagination-page-item')).toHaveCountGreaterThan(1);
     });
 
     // Test Case 2: Boundary testing - first page
@@ -589,7 +599,29 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     });
   });
 
-  test('@mock @security Session timeout simulation', async ({ page }) => {
+async function waitForDirectoryPageReady(page) {
+  await page.waitForURL(/directory\/viewDirectory/);
+  await page.locator('.oxd-table').waitFor();
+  await page.waitForLoadState('networkidle');
+}
+
+async function searchDirectory(page, criteria) {
+  if (criteria.name) {
+    await page.locator(':nth-match(.oxd-input, 1)').fill(criteria.name);
+  }
+  if (criteria.jobTitle) {
+    await page.locator('.oxd-select-text').first().click();
+    await page.locator('.oxd-select-dropdown').getByText(criteria.jobTitle).click();
+  }
+  if (criteria.location) {
+    await page.locator(':nth-match(.oxd-select-text, 2)').click();
+    await page.locator('.oxd-select-dropdown').getByText(criteria.location).click();
+  }
+  await page.locator('button:has-text("Search")').click();
+  await page.waitForLoadState('networkidle');
+}
+
+test('@mock @security Session timeout simulation', async ({ page }) => {
     test.setTimeout(30000);
     
     // Navigasi ke halaman login
