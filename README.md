@@ -20,14 +20,14 @@
 
 | Category | Test Cases | Coverage | Status |
 |----------|-----------|----------|--------|
-| **Authentication** | Login/Logout, Session Security | 100% | ![Auth Tests](https://img.shields.io/badge/Auth-100%25-brightgreen) |
+| **Authentication** | Login/Logout, Session Security, Performance | 100% | ![Auth Tests](https://img.shields.io/badge/Auth-100%25-brightgreen) |
 | **Dashboard** | Widgets, Quick Launch, Negative Cases | 100% | ![Dashboard Tests](https://img.shields.io/badge/Dashboard-100%25-brightgreen) | 
 | **Directory** | Search, Pagination | 90% | ![Directory Tests](https://img.shields.io/badge/Directory-90%25-green) |
 
 ```mermaid
 pie
     title Test Coverage Distribution
-    "Authentication" : 25
+    "Authentication" : 35
     "Dashboard" : 40
     "Directory" : 40
 ```
@@ -357,6 +357,8 @@ npx playwright show-report
 | TC-008 | Long input | Low | Boundary | Verify long input handling | 1. On login page | 1. Input 100-char username<br>2. Input 100-char password<br>3. Click Login | 1. System doesn't crash<br>2. Show appropriate error | UI-002 |
 | TC-009 | Session timeout | High | Security | Verify inactivity timeout | 1. User logged in | 1. Wait 5 minutes<br>2. Access Admin menu | 1. Redirect to login page | SEC-003<br>**Currently disabled** |
 | TC-010 | Concurrent login | Medium | Security | Verify multiple sessions | 1. - | 1. Login session 1<br>2. Login session 2 | 1. Both sessions active (demo app allows) | - |
+| TC-016 | Login page elements validation | High | Functional | Verify all login page elements | 1. On login page | 1. Check username field<br>2. Check password field<br>3. Check login button<br>4. Check forgot password link | 1. All elements visible<br>2. All elements enabled<br>3. Proper placeholders shown | FR-001 |
+| TC-017 | Login with network delays | Medium | Performance | Verify login with slow network | 1. On login page | 1. Enable network throttling<br>2. Attempt login | 1. Login succeeds<br>2. No timeout errors<br>3. UI remains responsive | PERF-001 |
 | TC-011 | Dashboard validation | High | Functional | Verify dashboard page components | 1. User logged in | 1. Navigate to dashboard<br>2. Check header<br>3. Verify widgets<br>4. Test quick launch | 1. Correct header shown<br>2. All widgets visible<br>3. Quick launch functional | FR-006 |
 | TC-015 | Dashboard with missing widgets | Medium | Negative | Verify dashboard behavior when widgets are missing | 1. User logged in | 1. Remove a widget<br>2. Verify count decreased<br>3. Check for errors | 1. Widget count decreases<br>2. No errors shown<br>3. UI remains stable | FR-006 |
 | TC-012 | Directory basic validation | Medium | Functional | Verify Directory page navigation and elements | 1. User logged in | 1. Navigate to Directory<br>2. Verify page elements | 1. Correct URL<br>2. All elements visible | FR-007 |
