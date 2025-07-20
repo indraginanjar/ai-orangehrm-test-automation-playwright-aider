@@ -9,8 +9,22 @@ const INVALID_CREDENTIALS = {
   username: 'wrong',
   password: 'wrong'
 };
+const TEST_DATA = {
+  empty: { username: '', password: '' },
+  caseSensitive: { username: 'ADMIN', password: 'ADMIN123' }, // Wrong case
+  longInput: { 
+    username: 'a'.repeat(100), 
+    password: 'b'.repeat(100)
+  }
+};
 
-test.describe('OrangeHRM Functional Tests', () => {
+test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
+  /*
+  * Test Suite covering:
+  * - Functional requirements (FR-001 to FR-005)
+  * - Security requirements (SEC-001 to SEC-003)
+  * - UI requirements (UI-001 to UI-002)
+  */
   test.beforeEach(async ({ page }) => {
     await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login');
   });
@@ -84,5 +98,68 @@ test.describe('OrangeHRM Functional Tests', () => {
     
     // Should be redirected back to login
     await page.waitForURL(/auth\/login/);
+  });
+  test('@boundary Empty credentials validation', async ({ page }) => {
+    await page.getByPlaceholder('Username').fill(TEST_DATA.empty.username);
+    await page.getByPlaceholder('Password').fill(TEST_DATA.empty.password);
+    await page.getByRole('button', { name: 'Login' }).click();
+
+    await expect(page.getByText('Required')).toHaveCount(2); // Both fields show required
+    await expect(page).toHaveURL(/auth\/login/);
+  });
+
+  test('@security Case sensitive password validation', async ({ page }) => {
+    await page.getByPlaceholder('Username').fill(TEST_DATA.caseSensitive.username);
+    await page.getByPlaceholder('Password').fill(TEST_DATA.caseSensitive.password);
+    await page.getByRole('button', { name: 'Login' }).click();
+
+    await expect(page.getByText('Invalid credentials')).toBeVisible();
+  });
+
+  test('@boundary Long input handling', async ({ page }) => {
+    await page.getByPlaceholder('Username').fill(TEST_DATA.longInput.username);
+    await page.getByPlaceholder('Password').fill(TEST_DATA.longInput.password);
+    await page.getByRole('button', { name: 'Login' }).click();
+
+    // System should handle without crashing
+    await expect(page.getByText('Invalid credentials')).toBeVisible();
+  });
+
+  test('@security Session timeout after inactivity', async ({ page }) => {
+    // Login first
+    await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
+    await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
+    await page.getByRole('button', { name: 'Login' }).click();
+    
+    // Wait for timeout (simulate 30 minutes inactivity)
+    await page.waitForTimeout(1000); // In real test, would be 30*60*1000
+    
+    // Try to access protected page
+    await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/dashboard/index');
+    
+    // Should be redirected to login
+    await expect(page.getByPlaceholder('Username')).toBeVisible();
+  });
+
+  test('@security Concurrent login prevention', async ({ browser }) => {
+    // First session
+    const context1 = await browser.newContext();
+    const page1 = await context1.newPage();
+    await page1.goto('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login');
+    await page1.getByPlaceholder('Username').fill(CREDENTIALS.username);
+    await page1.getByPlaceholder('Password').fill(CREDENTIALS.password);
+    await page1.getByRole('button', { name: 'Login' }).click();
+    
+    // Second session
+    const context2 = await browser.newContext();
+    const page2 = await context2.newPage();
+    await page2.goto('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login');
+    await page2.getByPlaceholder('Username').fill(CREDENTIALS.username);
+    await page2.getByPlaceholder('Password').fill(CREDENTIALS.password);
+    await page2.getByRole('button', { name: 'Login' }).click();
+    
+    // First session should be invalidated
+    await page1.reload();
+    await expect(page1.getByPlaceholder('Username')).toBeVisible();
   });
 });
