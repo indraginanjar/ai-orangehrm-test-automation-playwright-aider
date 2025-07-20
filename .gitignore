@@ -9,3 +9,6 @@ node_modules/
 
 # Screenshots
 /screenshots/
+
+# Videos
+/test-results/**/*.webm

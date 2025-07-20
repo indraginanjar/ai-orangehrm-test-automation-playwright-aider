@@ -46,7 +46,10 @@ export default defineConfig({
       animations: 'disabled',
       timeout: 10000
     },
-    video: 'retain-on-failure',
+    video: {
+      mode: 'on',
+      size: { width: 1280, height: 720 }
+    },
     /* Viewport settings */
     viewport: { width: 1280, height: 720 }, // Fixed viewport
     launchOptions: {

@@ -206,9 +206,24 @@ Mock tests are automatically excluded by default (see playwright.config.ts). The
 ## Screenshots and Reports
 
 The test suite automatically captures:
-- Screenshots on test failures
-- Videos of failed test runs
+- Screenshots on test failures  
+- Videos of all test runs (passed and failed)
 - Manual screenshots at key test points
+
+### Video Management
+Videos are automatically recorded for all tests in 1280x720 resolution. To manage disk space:
+
+1. **Automatic Cleanup**:
+```bash
+node clean-videos.js
+```
+This removes videos older than 7 days.
+
+2. **Manual Cleanup**:
+```bash
+# Remove all videos
+rm -rf test-results/**/*.webm
+```
 
 ### Viewing Results
 
