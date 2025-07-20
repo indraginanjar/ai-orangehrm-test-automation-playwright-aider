@@ -126,27 +126,22 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
   });
 
   test('@security Session timeout after inactivity', async ({ page }) => {
+    test.setTimeout(400000); // 6 minutes 40 seconds
+    
     // Login first
     await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
     await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
     await page.getByRole('button', { name: 'Login' }).click();
     await page.waitForURL(/dashboard/);
     
-    // Simulate inactivity by waiting longer than session timeout (demo app has 5 min timeout)
-    await page.waitForTimeout(310000); // 5 minutes 10 seconds
+    // Simulate inactivity by waiting 5 minutes
+    await page.waitForTimeout(300000); // 5 minutes
     
     // Try to perform an action that requires authentication
     await page.getByRole('link', { name: 'Admin' }).click();
     
     // Verify we're redirected to login page
-    try {
-      await page.waitForURL(/auth\/login/, { timeout: 10000 });
-    } catch {
-      // If still not redirected, force refresh
-      await page.reload();
-      await page.waitForURL(/auth\/login/, { timeout: 5000 });
-    }
-    
+    await page.waitForURL(/auth\/login/, { timeout: 10000 });
     await expect(page.getByPlaceholder('Username')).toBeVisible();
   });
 
