@@ -89,6 +89,11 @@ const TEST_DATA = {
   longInput: { 
     username: 'a'.repeat(100), 
     password: 'b'.repeat(100)
+  },
+  directory: {
+    searchName: 'Odis',
+    jobTitle: 'Chief Executive Officer',
+    location: 'Texas R&D'
   }
 };
 
@@ -471,6 +476,108 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     } catch (error) {
       console.error('Dashboard validation screenshot failed:', error);
     }
+  });
+
+  test('Directory page navigation and basic validation', async ({ page }) => {
+    test.info().annotations.push({
+      type: 'ISTQB',
+      description: 'TC-012: Directory page basic validation'
+    });
+
+    // Precondition: Login
+    await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
+    await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
+    await page.getByRole('button', { name: 'Login' }).click();
+    
+    // Test Case 1: Navigation to Directory
+    await test.step('Verify Directory page navigation', async () => {
+      await page.locator('span:has-text("Directory")').first().click();
+      await expect(page).toHaveURL(/directory\/viewDirectory/);
+      await expect(page.getByRole('heading', { name: 'Directory' })).toBeVisible();
+    });
+
+    // Test Case 2: Basic page elements validation
+    await test.step('Verify Directory page elements', async () => {
+      await expect(page.locator('.oxd-input')).toHaveCount(3); // Search fields
+      await expect(page.locator('.oxd-table')).toBeVisible(); // Employee table
+      await expect(page.locator('.orangehrm-paper-container')).toBeVisible(); // Main container
+    });
+  });
+
+  test('Directory search functionality validation', async ({ page }) => {
+    test.info().annotations.push({
+      type: 'ISTQB',
+      description: 'TC-013: Directory search functionality'
+    });
+
+    // Precondition: Login and navigate to Directory
+    await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
+    await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
+    await page.getByRole('button', { name: 'Login' }).click();
+    await page.locator('span:has-text("Directory")').first().click();
+
+    // Test Case 1: Search by name
+    await test.step('Verify search by employee name', async () => {
+      await page.locator(':nth-match(.oxd-input, 1)').fill(TEST_DATA.directory.searchName);
+      await page.locator('button:has-text("Search")').click();
+      
+      const nameCells = page.locator('.oxd-table-cell:has-text("Odis")');
+      await expect(nameCells).toHaveCount(1);
+      await expect(nameCells.first()).toContainText('Odis Adalwin');
+    });
+
+    // Test Case 2: Search by job title
+    await test.step('Verify search by job title', async () => {
+      await page.locator(':nth-match(.oxd-input, 1)').fill(''); // Clear name field
+      await page.locator('.oxd-select-text').first().click();
+      await page.locator('.oxd-select-dropdown').getByText(TEST_DATA.directory.jobTitle).click();
+      await page.locator('button:has-text("Search")').click();
+      
+      await expect(page.locator('.oxd-table-cell:has-text("CEO")')).toBeVisible();
+    });
+
+    // Test Case 3: Search by location
+    await test.step('Verify search by location', async () => {
+      await page.locator('.oxd-select-text').first().click(); // Clear job title
+      await page.locator('.oxd-select-dropdown').getByText('-- Select --').click();
+      await page.locator(':nth-match(.oxd-select-text, 2)').click();
+      await page.locator('.oxd-select-dropdown').getByText(TEST_DATA.directory.location).click();
+      await page.locator('button:has-text("Search")').click();
+      
+      await expect(page.locator(`.oxd-table-cell:has-text("${TEST_DATA.directory.location}")`)).toBeVisible();
+    });
+  });
+
+  test('@boundary Directory pagination validation', async ({ page }) => {
+    test.info().annotations.push({
+      type: 'ISTQB',
+      description: 'TC-014: Directory pagination boundary testing'
+    });
+
+    // Precondition: Login and navigate to Directory
+    await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
+    await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
+    await page.getByRole('button', { name: 'Login' }).click();
+    await page.locator('span:has-text("Directory")').first().click();
+
+    // Test Case 1: Verify pagination controls
+    await test.step('Verify pagination controls visibility', async () => {
+      await expect(page.locator('.oxd-pagination')).toBeVisible();
+      await expect(page.locator('.oxd-pagination-page-item')).toHaveCountGreaterThan(1);
+    });
+
+    // Test Case 2: Boundary testing - first page
+    await test.step('Verify first page boundary', async () => {
+      await page.locator('.oxd-pagination-page-item:has-text("1")').first().click();
+      await expect(page.locator('.oxd-pagination-page-item.active')).toContainText('1');
+    });
+
+    // Test Case 3: Boundary testing - last page
+    await test.step('Verify last page boundary', async () => {
+      const lastPage = await page.locator('.oxd-pagination-page-item').last().textContent();
+      await page.locator('.oxd-pagination-page-item').last().click();
+      await expect(page.locator('.oxd-pagination-page-item.active')).toContainText(lastPage);
+    });
   });
 
   test('@mock @security Session timeout simulation', async ({ page }) => {

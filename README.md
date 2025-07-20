@@ -320,6 +320,9 @@ npx playwright show-report
 | TC-009 | Session timeout | High | Security | Verify inactivity timeout | 1. User logged in | 1. Wait 5 minutes<br>2. Access Admin menu | 1. Redirect to login page | SEC-003<br>**Currently disabled** |
 | TC-010 | Concurrent login | Medium | Security | Verify multiple sessions | 1. - | 1. Login session 1<br>2. Login session 2 | 1. Both sessions active (demo app allows) | - |
 | TC-011 | Dashboard validation | High | Functional | Verify dashboard page components | 1. User logged in | 1. Navigate to dashboard<br>2. Check header<br>3. Verify widgets<br>4. Test quick launch | 1. Correct header shown<br>2. All widgets visible<br>3. Quick launch functional | FR-006 |
+| TC-012 | Directory basic validation | Medium | Functional | Verify Directory page navigation and elements | 1. User logged in | 1. Navigate to Directory<br>2. Verify page elements | 1. Correct URL<br>2. All elements visible | FR-007 |
+| TC-013 | Directory search | High | Functional | Verify search functionality | 1. On Directory page | 1. Search by name<br>2. Search by job title<br>3. Search by location | 1. Correct results for each filter | FR-008 |
+| TC-014 | Directory pagination | Low | Boundary | Verify pagination controls | 1. On Directory page | 1. Test first page<br>2. Test last page | 1. Pagination works correctly | UI-003 |
 
 ### Test Attributes
 1. **Test Case ID**: Unique TC-XXX identifier  
@@ -339,6 +342,8 @@ npx playwright show-report
 | FR-004 | Logout Functionality | <ul><li>Returns to login page</li><li>Clears session</li></ul> | TC-004 |
 | FR-005 | Post-Logout Session Validation | <ul><li>Redirects to login when accessing protected pages</li></ul> | TC-005 |
 | FR-006 | Dashboard Display | <ul><li>Shows correct header</li><li>Displays all widgets</li><li>Quick launch functions work</li></ul> | TC-011 |
+| FR-007 | Directory Page Access | <ul><li>Correct navigation</li><li>Basic elements visible</li></ul> | TC-012 |
+| FR-008 | Directory Search | <ul><li>Name search works</li><li>Job title filter works</li><li>Location filter works</li></ul> | TC-013 |
 
 **Key Characteristics:**
 - Direct traceability between requirements and test cases
@@ -386,6 +391,7 @@ npx playwright show-report
 |----|-------------|-----------------|-----------|
 | UI-001 | Empty Field Validation | <ul><li>Shows "Required" message</li><li>Highlights empty fields</li><li>Prevents form submission</li></ul> | TC-006 |
 | UI-002 | Long Input Handling | <ul><li>Handles long inputs without UI breakage</li><li>Shows appropriate error</li><li>Maintains form functionality</li></ul> | TC-008 |
+| UI-003 | Pagination Handling | <ul><li>Pagination controls work</li><li>Boundary cases handled</li></ul> | TC-014 |
 
 **Key UI Characteristics:**
 1. **Form Validation**:
