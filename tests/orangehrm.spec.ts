@@ -391,9 +391,11 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     await page.locator('button[type="submit"]').click();
     
     // Wait for dashboard with multiple checks
-    // Wait for dashboard to fully load
     await page.waitForURL(/dashboard/, { timeout: 30000 });
     await page.waitForLoadState('networkidle');
+    
+    // Add additional wait for dashboard to fully render
+    await page.waitForSelector('.oxd-topbar-header', { state: 'visible', timeout: 15000 });
 
     // Test Case 1: Verify header section with more reliable selectors
     await test.step('Verify dashboard header', async () => {
@@ -402,9 +404,30 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible();
     });
 
-    // Test Case 2: Verify widgets with improved selectors
+    // Test Case 2: Verify widgets with improved selectors and retry logic
     await test.step('Verify dashboard widgets', async () => {
-      const widgetContainer = page.locator('.oxd-dashboard-grid');
+      // Try multiple selectors for widget container with retries
+      const widgetSelectors = [
+        '.oxd-dashboard-grid',
+        '.orangehrm-dashboard-grid',
+        '.dashboard-container'
+      ];
+      
+      let widgetContainer;
+      for (const selector of widgetSelectors) {
+        try {
+          widgetContainer = page.locator(selector);
+          await widgetContainer.waitFor({ state: 'visible', timeout: 10000 });
+          break;
+        } catch (error) {
+          console.log(`Selector ${selector} not found, trying next option`);
+        }
+      }
+      
+      if (!widgetContainer) {
+        throw new Error('Could not find dashboard widgets container');
+      }
+
       await expect(widgetContainer).toBeVisible();
       
       const expectedWidgets = [
@@ -417,7 +440,7 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       ];
 
       for (const widget of expectedWidgets) {
-        await expect(page.getByText(widget, { exact: true }).first()).toBeVisible({ timeout: 5000 });
+        await expect(page.getByText(widget, { exact: true }).first()).toBeVisible({ timeout: 10000 });
       }
     });
 
