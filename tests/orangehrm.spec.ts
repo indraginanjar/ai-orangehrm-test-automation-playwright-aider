@@ -546,49 +546,17 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       // Verify search fields
       await expect(page.locator('.oxd-input')).toBeVisible();
       
-      // Wait for table to load with multiple selector options
-      const tableSelectors = [
-        '.oxd-table',
-        '.orangehrm-container',
-        '.oxd-table-card'
-      ];
+      // Verify table exists with more reliable selector and longer timeout
+      await expect(page.locator('.oxd-table')).toBeVisible({ timeout: 30000 });
       
-      let tableFound = false;
-      for (const selector of tableSelectors) {
-        try {
-          await page.waitForSelector(selector, { state: 'visible', timeout: 30000 });
-          tableFound = true;
-          break;
-        } catch (error) {
-          console.log(`Table not found with selector ${selector}, trying next option`);
-        }
-      }
-      
-      if (!tableFound) {
-        throw new Error('Could not find Directory table with any selector');
-      }
-
-      // Handle both data and no-data cases
+      // Check for either rows or "No records found" message
       const noDataMessage = page.locator('.oxd-table-cell:has-text("No Records Found")');
       const firstRow = page.locator('.oxd-table-card').first();
       
-      // Wait for either condition with detailed logging
-      try {
-        await Promise.race([
-          (async () => {
-            await firstRow.waitFor({ state: 'visible', timeout: 30000 });
-            console.log('Found table rows');
-          })(),
-          (async () => {
-            await noDataMessage.waitFor({ state: 'visible', timeout: 30000 });
-            console.log('Found no data message');
-          })()
-        ]);
-      } catch (error) {
-        console.error('Neither rows nor no-data message found');
-        await takeScreenshot(page, 'directory-table-error');
-        throw error;
-      }
+      await Promise.race([
+        expect(firstRow).toBeVisible({ timeout: 30000 }),
+        expect(noDataMessage).toBeVisible({ timeout: 30000 })
+      ]);
     });
   });
 
