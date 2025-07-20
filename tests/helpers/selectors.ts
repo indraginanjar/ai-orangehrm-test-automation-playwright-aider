@@ -15,10 +15,12 @@ export const SELECTORS = {
     ]
   },
   DIRECTORY: {
-    TABLE: '.orangehrm-container',
+    TABLE: '.orangehrm-container, .oxd-table',
     SEARCH_INPUT: ':nth-match(.oxd-input, 1)',
     SEARCH_BUTTON: 'button:has-text("Search")',
-    RESET_BUTTON: 'button:has-text("Reset")'
+    RESET_BUTTON: 'button:has-text("Reset")',
+    TABLE_ROW: '.oxd-table-card, .oxd-table-row, .oxd-table-body > div',
+    NO_DATA: '.oxd-table-cell:has-text("No Records Found")'
   },
   USER: {
     DROPDOWN: '.oxd-userdropdown-tab',

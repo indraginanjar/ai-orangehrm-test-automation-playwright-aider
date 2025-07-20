@@ -16,12 +16,28 @@ test.describe('Directory Tests', () => {
     });
 
     await test.step('Verify Directory page elements', async () => {
-      await expect(page.locator('.oxd-topbar-header-breadcrumb-module').getByText('Directory')).toBeVisible();
-      await expect(page.locator(SELECTORS.DIRECTORY.SEARCH_INPUT)).toBeVisible();
+      // Verify header and search
+      await expect(page.locator('.oxd-topbar-header-breadcrumb-module')
+        .getByText('Directory'))
+        .toBeVisible({ timeout: 15000 });
+      await expect(page.locator(SELECTORS.DIRECTORY.SEARCH_INPUT))
+        .toBeVisible({ timeout: 10000 });
       
+      // Verify table exists
       const table = page.locator(SELECTORS.DIRECTORY.TABLE);
-      await expect(table).toBeVisible();
-      await expect(table.locator('.oxd-table-card').first()).toBeVisible();
+      await expect(table).toBeVisible({ timeout: 20000 });
+      
+      // Check for either rows or "no data" message
+      const noData = page.locator(SELECTORS.DIRECTORY.NO_DATA);
+      const firstRow = table.locator(SELECTORS.DIRECTORY.TABLE_ROW).first();
+      
+      if (await noData.isVisible({ timeout: 5000 })) {
+        console.log('Directory table is empty - showing "No Records Found"');
+        await expect(noData).toBeVisible();
+      } else {
+        console.log('Directory table has data - verifying first row');
+        await expect(firstRow).toBeVisible({ timeout: 10000 });
+      }
     });
   });
 

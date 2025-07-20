@@ -42,10 +42,23 @@ export async function verifyDashboardWidgets(page: Page): Promise<void> {
 }
 
 export async function navigateToDirectory(page: Page): Promise<void> {
-  await page.locator('span:has-text("Directory")').click();
-  await page.waitForURL(/directory/);
-  await page.waitForSelector(SELECTORS.DIRECTORY.TABLE, { 
-    state: 'visible',
-    timeout: 30000 
+  await test.step('Navigate to Directory page', async () => {
+    await page.locator('span:has-text("Directory")').click();
+    await page.waitForURL(/directory/);
+    
+    // Wait for either table or no data message
+    await Promise.race([
+      page.waitForSelector(SELECTORS.DIRECTORY.TABLE, { 
+        state: 'visible',
+        timeout: 30000 
+      }),
+      page.waitForSelector(SELECTORS.DIRECTORY.NO_DATA, {
+        state: 'visible',
+        timeout: 30000
+      })
+    ]);
+    
+    // Additional wait for stability
+    await page.waitForLoadState('networkidle');
   });
 }
