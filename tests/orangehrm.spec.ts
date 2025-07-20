@@ -386,11 +386,6 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     await page.locator('button[type="submit"]').click();
     
     // Wait for dashboard with multiple checks
-    await page.waitForURL(/dashboard/, { timeout: 30000 });
-    await page.waitForLoadState('networkidle');
-    
-    if (!loggedIn) throw new Error('Failed to login after 3 attempts');
-    
     // Wait for dashboard to fully load
     await page.waitForURL(/dashboard/, { timeout: 30000 });
     await page.waitForLoadState('networkidle');
