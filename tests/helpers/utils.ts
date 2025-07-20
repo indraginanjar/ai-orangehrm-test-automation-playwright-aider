@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 import fs from 'fs';
 import { BASE_URL, TEST_DATA } from './test-data';
 import { SELECTORS } from './selectors';
