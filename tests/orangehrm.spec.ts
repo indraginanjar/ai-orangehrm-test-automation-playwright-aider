@@ -341,23 +341,28 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       description: 'TC-011: Dashboard page validation'
     });
 
-    // Precondition: Login first
+    // Precondition: Login first with explicit waits
     await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
     await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
     await page.getByRole('button', { name: 'Login' }).click();
     
-    // Wait for dashboard to load
-    await page.waitForURL(/dashboard/);
-    await page.waitForSelector('.oxd-dashboard-grid');
+    // Wait for dashboard to fully load
+    await page.waitForURL(/dashboard/, { timeout: 15000 });
+    await page.waitForSelector('.oxd-dashboard-grid', { state: 'visible', timeout: 10000 });
+    await page.waitForLoadState('networkidle');
 
-    // Test Case 1: Verify header section
+    // Test Case 1: Verify header section with more reliable selectors
     await test.step('Verify dashboard header', async () => {
-      await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
-      await expect(page.locator('.oxd-topbar-header-breadcrumb')).toContainText('Dashboard');
+      const dashboardHeader = page.locator('.oxd-topbar-header-breadcrumb-module');
+      await expect(dashboardHeader).toContainText('Dashboard');
+      await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible();
     });
 
-    // Test Case 2: Verify widgets
+    // Test Case 2: Verify widgets with improved selectors
     await test.step('Verify dashboard widgets', async () => {
+      const widgetContainer = page.locator('.oxd-dashboard-grid');
+      await expect(widgetContainer).toBeVisible();
+      
       const expectedWidgets = [
         'Time at Work',
         'My Actions',
@@ -368,30 +373,37 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
       ];
 
       for (const widget of expectedWidgets) {
-        await expect(page.getByText(widget)).toBeVisible();
+        await expect(page.getByText(widget, { exact: true }).first()).toBeVisible({ timeout: 5000 });
       }
     });
 
-    // Test Case 3: Verify quick launch functionality
+    // Test Case 3: Verify quick launch functionality with better selectors
     await test.step('Verify quick launch buttons', async () => {
+      const quickLaunchContainer = page.locator('.orangehrm-quick-launch');
+      await expect(quickLaunchContainer).toBeVisible();
+
       const quickLaunchButtons = [
         'Assign Leave',
         'Leave List',
         'Timesheets',
-        'Apply Leave',
+        'Apply Leave', 
         'My Leave',
         'My Timesheet'
       ];
 
       for (const buttonText of quickLaunchButtons) {
-        const button = page.locator(`.orangehrm-quick-launch >> text=${buttonText}`);
-        await expect(button).toBeVisible();
+        const button = page.locator('.orangehrm-quick-launch').getByText(buttonText, { exact: true });
+        await expect(button).toBeVisible({ timeout: 5000 });
         await expect(button).toBeEnabled();
       }
     });
 
-    // Post-test screenshot
-    await takeScreenshot(page, 'dashboard-validation');
+    // Post-test screenshot with error handling
+    try {
+      await takeScreenshot(page, 'dashboard-validation');
+    } catch (error) {
+      console.error('Dashboard validation screenshot failed:', error);
+    }
   });
 
   test('@mock @security Session timeout simulation', async ({ page }) => {
