@@ -130,6 +130,7 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
     await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
     await page.getByRole('button', { name: 'Login' }).click();
+    await page.waitForURL(/dashboard/);
     
     // Wait for timeout (simulate 30 minutes inactivity)
     await page.waitForTimeout(1000); // In real test, would be 30*60*1000
@@ -137,7 +138,8 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     // Try to access protected page
     await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/dashboard/index');
     
-    // Should be redirected to login
+    // Should be redirected to login - wait for navigation first
+    await page.waitForURL(/auth\/login/);
     await expect(page.getByPlaceholder('Username')).toBeVisible();
   });
 
@@ -149,6 +151,7 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     await page1.getByPlaceholder('Username').fill(CREDENTIALS.username);
     await page1.getByPlaceholder('Password').fill(CREDENTIALS.password);
     await page1.getByRole('button', { name: 'Login' }).click();
+    await page1.waitForURL(/dashboard/);
     
     // Second session
     const context2 = await browser.newContext();
@@ -157,9 +160,11 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     await page2.getByPlaceholder('Username').fill(CREDENTIALS.username);
     await page2.getByPlaceholder('Password').fill(CREDENTIALS.password);
     await page2.getByRole('button', { name: 'Login' }).click();
+    await page2.waitForURL(/dashboard/);
     
     // First session should be invalidated
     await page1.reload();
+    await page1.waitForURL(/auth\/login/);
     await expect(page1.getByPlaceholder('Username')).toBeVisible();
   });
 });
