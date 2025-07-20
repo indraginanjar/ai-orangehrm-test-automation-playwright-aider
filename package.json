@@ -2,7 +2,11 @@
   "name": "orangehrm_test_aider_playwright",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test": "playwright test",
+    "test:ci": "playwright test tests/orangehrm.spec.ts --project=chromium --retries=1",
+    "clean:videos": "node clean-videos.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
