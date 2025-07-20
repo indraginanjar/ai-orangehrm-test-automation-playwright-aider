@@ -129,6 +129,7 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     test.setTimeout(400000); // 6 minutes 40 seconds timeout
     
     // Login first
+    await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login');
     await page.getByPlaceholder('Username').fill(CREDENTIALS.username);
     await page.getByPlaceholder('Password').fill(CREDENTIALS.password);
     await page.getByRole('button', { name: 'Login' }).click();
@@ -137,26 +138,33 @@ test.describe('OrangeHRM Functional Tests - ISTQB Aligned', () => {
     // Simulate inactivity by waiting 5 minutes
     await page.waitForTimeout(300000); // 5 minutes
     
-    // Try to access protected page directly
-    await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/dashboard/index');
+    // Try to access protected page with multiple verification approaches
+    let redirectedToLogin = false;
     
-    // Verify redirect to login with multiple approaches
+    // Approach 1: Direct navigation check
     try {
-        await page.waitForURL(/auth\/login/, { timeout: 15000 });
-    } catch {
-        // Fallback 1: Check if we're still on dashboard
-        if (await page.url().includes('/dashboard')) {
-            // Force refresh if still on dashboard
-            await page.reload();
-            await page.waitForURL(/auth\/login/, { timeout: 5000 });
-        }
-        // Fallback 2: Directly check login elements
-        else if (!(await page.getByPlaceholder('Username').isVisible())) {
-            await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login');
-        }
+        await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/dashboard/index', {
+            waitUntil: 'domcontentloaded',
+            timeout: 10000
+        });
+    } catch (error) {
+        redirectedToLogin = true;
     }
     
+    // Approach 2: Verify current URL if navigation didn't throw
+    if (!redirectedToLogin) {
+        redirectedToLogin = await page.url().includes('/auth/login');
+    }
+    
+    // Approach 3: Force check if still uncertain
+    if (!redirectedToLogin) {
+        await page.reload();
+        redirectedToLogin = await page.waitForURL(/auth\/login/, { timeout: 10000 }).catch(() => false);
+    }
+    
+    // Final verification
     await expect(page.getByPlaceholder('Username')).toBeVisible();
+    await expect(page).toHaveURL(/auth\/login/);
   });
 
   test('@security Concurrent login prevention', async ({ browser }) => {
