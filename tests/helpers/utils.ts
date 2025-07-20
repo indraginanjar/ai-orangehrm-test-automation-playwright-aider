@@ -35,44 +35,46 @@ export async function verifyDashboardWidgets(page: Page, test?: any): Promise<vo
     });
   }, { timeout: 20000 });
 
-  // Enhanced verification for each widget with better error handling
+  // Enhanced verification with proper timeout handling
+  const MAX_RETRIES = 3;
+  const WIDGET_TIMEOUT = 20000; // 20 seconds per widget
+  
   for (const widgetName of SELECTORS.DASHBOARD.WIDGET_NAMES) {
     try {
       const widget = page.getByText(widgetName, { exact: true })
         .or(page.getByRole('heading', { name: widgetName }))
         .first();
+
+      let isVerified = false;
+      let attempt = 0;
       
-      // First check if widget exists without scrolling
-      const isVisible = await widget.isVisible().catch(() => false);
-      
-      if (!isVisible) {
-        // If not visible, try scrolling into view with retries
-        let retries = 3;
-        while (retries > 0) {
-          try {
-            await widget.scrollIntoViewIfNeeded({ timeout: 15000 });
-            break;
-          } catch (error) {
-            retries--;
-            if (retries === 0) {
-              test.info().annotations.push({
-                type: 'Warning',
-                description: `Widget '${widgetName}' could not be scrolled into view`
-              });
-              continue; // Skip to next widget instead of failing
-            }
-            await page.waitForTimeout(2000);
+      while (attempt < MAX_RETRIES && !isVerified) {
+        attempt++;
+        try {
+          // Combined visibility and scroll check with single timeout
+          await widget.scrollIntoViewIfNeeded({ timeout: WIDGET_TIMEOUT });
+          await expect(widget).toBeVisible({ timeout: WIDGET_TIMEOUT });
+          
+          // Additional checks only if widget is visible
+          await expect(widget).toHaveCSS('opacity', '1');
+          await expect(widget).toHaveCSS('visibility', 'visible');
+          await expect(widget).not.toHaveAttribute('aria-disabled', 'true');
+          
+          const widgetContainer = widget.locator('.. >> ..');
+          await expect(widgetContainer).toContainText(/.+/);
+          
+          isVerified = true;
+        } catch (error) {
+          if (attempt === MAX_RETRIES) {
+            test.info().annotations.push({
+              type: 'Warning',
+              description: `Widget '${widgetName}' verification failed after ${MAX_RETRIES} attempts: ${error.message}`
+            });
+          } else {
+            await page.waitForTimeout(2000); // Short delay between retries
           }
         }
       }
-
-      // More lenient visibility check
-      await expect(widget).toBeVisible({ timeout: 20000 }).catch(() => {
-        test.info().annotations.push({
-          type: 'Warning', 
-          description: `Widget '${widgetName}' visibility check failed`
-        });
-      });
 
       await expect(widget).toHaveCSS('opacity', '1');
       await expect(widget).toHaveCSS('visibility', 'visible');
