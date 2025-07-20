@@ -33,8 +33,10 @@ test.describe('OrangeHRM Functional Tests', () => {
     await page.getByPlaceholder('Password').fill(INVALID_CREDENTIALS.password);
     await page.getByRole('button', { name: 'Login' }).click();
 
-    // Verify error message
-    await expect(page.locator('.oxd-alert-content-text')).toHaveText('Invalid credentials');
+    // Verify error message - wait for alert to appear and check text
+    const errorAlert = page.locator('.oxd-alert-content >> .oxd-text');
+    await errorAlert.waitFor();
+    await expect(errorAlert).toContainText('Invalid credentials');
     await expect(page).toHaveURL(/auth\/login/); // Still on login page
   });
 
