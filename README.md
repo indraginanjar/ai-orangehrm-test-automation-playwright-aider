@@ -21,14 +21,14 @@
 | Category | Test Cases | Coverage | Status |
 |----------|-----------|----------|--------|
 | **Authentication** | Login/Logout, Session Security | 100% | ![Auth Tests](https://img.shields.io/badge/Auth-100%25-brightgreen) |
-| **Dashboard** | Widgets, Quick Launch | 85% | ![Dashboard Tests](https://img.shields.io/badge/Dashboard-85%25-green) | 
+| **Dashboard** | Widgets, Quick Launch, Negative Cases | 100% | ![Dashboard Tests](https://img.shields.io/badge/Dashboard-100%25-brightgreen) | 
 | **Directory** | Search, Pagination | 90% | ![Directory Tests](https://img.shields.io/badge/Directory-90%25-green) |
 
 ```mermaid
 pie
     title Test Coverage Distribution
     "Authentication" : 25
-    "Dashboard" : 35
+    "Dashboard" : 40
     "Directory" : 40
 ```
 
@@ -358,6 +358,7 @@ npx playwright show-report
 | TC-009 | Session timeout | High | Security | Verify inactivity timeout | 1. User logged in | 1. Wait 5 minutes<br>2. Access Admin menu | 1. Redirect to login page | SEC-003<br>**Currently disabled** |
 | TC-010 | Concurrent login | Medium | Security | Verify multiple sessions | 1. - | 1. Login session 1<br>2. Login session 2 | 1. Both sessions active (demo app allows) | - |
 | TC-011 | Dashboard validation | High | Functional | Verify dashboard page components | 1. User logged in | 1. Navigate to dashboard<br>2. Check header<br>3. Verify widgets<br>4. Test quick launch | 1. Correct header shown<br>2. All widgets visible<br>3. Quick launch functional | FR-006 |
+| TC-015 | Dashboard with missing widgets | Medium | Negative | Verify dashboard behavior when widgets are missing | 1. User logged in | 1. Remove a widget<br>2. Verify count decreased<br>3. Check for errors | 1. Widget count decreases<br>2. No errors shown<br>3. UI remains stable | FR-006 |
 | TC-012 | Directory basic validation | Medium | Functional | Verify Directory page navigation and elements | 1. User logged in | 1. Navigate to Directory<br>2. Verify page elements | 1. Correct URL<br>2. All elements visible | FR-007 |
 | TC-013 | Directory search | High | Functional | Verify search functionality | 1. On Directory page | 1. Search by name<br>2. Search by job title<br>3. Search by location | 1. Correct results for each filter | FR-008 |
 | TC-014 | Directory pagination | Low | Boundary | Verify pagination controls | 1. On Directory page | 1. Test first page<br>2. Test last page | 1. Pagination works correctly | UI-003 |
